@@ -9,3 +9,9 @@ two:
   email_address: two@example.com
   name: Sam Support
   password_digest: <%= password_digest %>
+
+former:
+  email_address: former@example.com
+  name: Former Agent
+  password_digest: <%= password_digest %>
+  deactivated_at: <%= 1.day.ago.to_fs(:db) %>

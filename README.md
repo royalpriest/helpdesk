@@ -53,6 +53,9 @@ Create your first agent from the console:
 User.create!(name: "Your Name", email_address: "you@example.com", password: "a-long-password")
 ```
 
+After that, invite teammates from the **Agents** page. They get an email with a link to choose
+their password.
+
 ## How it fits together
 
 | Piece | File |
