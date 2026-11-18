@@ -44,4 +44,13 @@ class TicketTest < ActiveSupport::TestCase
     assert_empty Ticket.search("%")
     assert_equal Ticket.count, Ticket.search("").count
   end
+
+  test "remembers when a ticket started waiting on the customer" do
+    ticket = tickets(:login)
+    ticket.add_agent_reply!(user: users(:one), body: "Does this help?")
+    assert_in_delta Time.current, ticket.pending_since, 5
+
+    ticket.add_customer_message!(body: "Yes")
+    assert_nil ticket.reload.pending_since
+  end
 end

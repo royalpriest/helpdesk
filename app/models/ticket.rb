@@ -16,10 +16,13 @@ class Ticket < ApplicationRecord
 
   validates :subject, presence: true
 
+  before_save :track_pending_since, if: :status_changed?
+
   scope :unassigned, -> { where(assignee_id: nil) }
   scope :assigned_to, ->(user) { where(assignee: user) }
   scope :recent_first, -> { order(updated_at: :desc) }
   scope :not_closed, -> { where.not(status: "closed") }
+  scope :pending_before, ->(time) { pending.where(pending_since: ...time) }
 
   # Matches the subject, any message body, or the customer's email or name.
   def self.search(query)
@@ -80,4 +83,9 @@ class Ticket < ApplicationRecord
     TicketMailer.reply(message).deliver_later
     message
   end
+
+  private
+    def track_pending_since
+      self.pending_since = pending? ? Time.current : nil
+    end
 end
