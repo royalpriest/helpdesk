@@ -1,81 +1,147 @@
+<% content_for :workspace, "true" %>
 <% content_for :title, "#{@ticket.reference} #{@ticket.subject}" %>
 
 <%= turbo_stream_from @ticket %>
+<%= turbo_stream_from :tickets %>
 
-<h1><%= @ticket.reference %> <%= @ticket.subject %></h1>
-<p class="meta">From <%= @ticket.customer.display_name %> &lt;<%= @ticket.customer.email_address %>&gt; to <%= @ticket.inbox.name %> &lt;<%= @ticket.inbox.email_address %>&gt;</p>
+<div class="workspace has-ticket">
+  <%= render "list" %>
 
-<% if @ticket.rated_at %>
-  <p class="rating <%= @ticket.rating %>">
-    Customer rated this <strong><%= @ticket.rating == "good" ? "👍 good" : "👎 not so good" %></strong>
-    <%= time_ago_in_words(@ticket.rated_at) %> ago<% if @ticket.rating_comment.present? %>: “<%= @ticket.rating_comment %>”<% end %>
-  </p>
-<% end %>
+  <section class="detail-pane" aria-label="Conversation">
+    <header class="ticket-header">
+      <%= link_to tickets_path(@list_params), class: "back-link" do %><%= icon :back, size: 15 %> Back to tickets<% end %>
+      <div class="ticket-heading">
+        <div class="ticket-kicker">
+          <span class="mono"><%= @ticket.reference %></span>
+          <span><%= @ticket.inbox.name %> inbox</span>
+          <%= status_pill(@ticket) %>
+        </div>
+        <h1><%= @ticket.subject %></h1>
+      </div>
+      <div class="ticket-actions">
+        <% unless @ticket.assignee == Current.user %>
+          <%= button_to "Assign to me", ticket_path(@ticket, @list_params), method: :patch, params: { ticket: { assignee_id: Current.user.id } }, class: "btn btn-secondary" %>
+        <% end %>
+        <% unless @ticket.closed? %>
+          <%= button_to ticket_path(@ticket, @list_params), method: :patch, params: { ticket: { status: "closed" } }, class: "btn btn-dark" do %><%= icon :check, size: 15 %> Close ticket<% end %>
+        <% end %>
+      </div>
+    </header>
 
-<section class="ticket-tags" id="tags">
-  <% @ticket.tags.each do |tag| %>
-    <span class="tag">
-      <%= link_to tag.name, tickets_path(filter: "all", tag: tag.name) %>
-      <%= button_to "×", ticket_tagging_path(@ticket, tag.name), method: :delete, class: "link", title: "Remove tag" %>
-    </span>
-  <% end %>
-  <%= form_with url: ticket_taggings_path(@ticket), scope: :tagging, class: "add-tag" do |f| %>
-    <%= f.text_field :name, placeholder: "Add a tag", list: "known-tags", aria: { label: "Add a tag" } %>
-    <datalist id="known-tags">
-      <% Tag.alphabetical.each do |tag| %><option value="<%= tag.name %>"></option><% end %>
-    </datalist>
-    <%= f.submit "Add", class: "secondary" %>
-  <% end %>
-</section>
+    <% if @ticket.rated_at %>
+      <p class="rating <%= @ticket.rating %>">
+        Customer rated this <strong><%= @ticket.rating == "good" ? "good" : "not so good" %></strong>
+        <%= time_ago_in_words(@ticket.rated_at) %> ago<% if @ticket.rating_comment.present? %>: “<%= @ticket.rating_comment %>”<% end %>
+      </p>
+    <% end %>
 
-<% if @other_tickets.any? %>
-  <aside class="other-tickets">
-    <h2>Other tickets from <%= @ticket.customer.display_name %></h2>
-    <ul>
-      <% @other_tickets.each do |other| %>
-        <li id="<%= dom_id(other, :other) %>">
-          <%= link_to "#{other.reference} #{other.subject}", other %>
-          <span class="status <%= other.status %>"><%= other.status %></span>
-        </li>
+    <div class="conversation">
+      <%= render partial: "shared/message", collection: @ticket.messages.includes(:user, attachments_attachments: :blob), as: :message %>
+    </div>
+
+    <%= form_with model: [ @ticket, @message ], class: "composer reply", data: {
+          controller: "canned-reply composer",
+          composer_reply_placeholder_value: "Write a reply to #{@ticket.customer.display_name}…",
+          composer_note_placeholder_value: "Leave a note for your team. #{@ticket.customer.display_name} won't see it.",
+          composer_reply_hint_value: "Sent from #{@ticket.inbox.email_address}",
+          composer_note_hint_value: "Only your team sees notes"
+        } do |f| %>
+      <div class="composer-tabs" role="tablist" aria-label="Message type">
+        <button type="button" role="tab" aria-selected="true" data-mode="reply" data-composer-target="tab" data-action="composer#switch">Reply</button>
+        <button type="button" role="tab" aria-selected="false" data-mode="note" data-composer-target="tab" data-action="composer#switch">Internal note</button>
+        <span class="composer-hint" data-composer-target="hint">Sent from <%= @ticket.inbox.email_address %></span>
+      </div>
+      <%= f.label :body, "Reply", class: "visually-hidden" %>
+      <%= f.text_area :body, rows: 4, placeholder: "Write a reply to #{@ticket.customer.display_name}…", data: { canned_reply_target: "body", composer_target: "body" } %>
+      <div class="composer-bar">
+        <div class="composer-tools">
+          <% if @canned_replies.any? %>
+            <label for="canned_reply" class="canned-picker">
+              <%= icon :list, size: 15 %>
+              <span class="visually-hidden">Insert canned reply</span>
+              <select id="canned_reply" data-action="canned-reply#insert">
+                <option value="">Canned reply</option>
+                <% @canned_replies.each do |reply| %>
+                  <option value="<%= reply.render_for(ticket: @ticket, agent: Current.user) %>"><%= reply.title %></option>
+                <% end %>
+              </select>
+              <kbd>/</kbd>
+            </label>
+          <% end %>
+        </div>
+        <div class="composer-send">
+          <%= f.button "Send and close", name: "close", value: "1", class: "btn btn-secondary", data: { composer_target: "reply" } %>
+          <%= f.button class: "btn btn-primary", name: nil, data: { composer_target: "reply primary" } do %>Send reply <kbd>⌘↵</kbd><% end %>
+          <%= f.button name: "note", value: "1", class: "btn btn-note", data: { composer_target: "note primary" } do %>Add internal note <kbd>⌘↵</kbd><% end %>
+        </div>
+      </div>
+    <% end %>
+  </section>
+
+  <aside class="side-pane" aria-label="Customer and ticket details">
+    <section class="customer-card">
+      <%= avatar @ticket.customer.display_name, size: :lg %>
+      <strong><%= @ticket.customer.display_name %></strong>
+      <span class="muted break"><%= @ticket.customer.email_address %></span>
+      <div class="mini-stats">
+        <div><span class="stat-value"><%= @other_tickets.size + 1 %></span><span class="stat-label">Tickets</span></div>
+        <div><span class="stat-value"><%= l @ticket.customer.created_at.to_date, format: "%b %Y" %></span><span class="stat-label">Customer since</span></div>
+      </div>
+    </section>
+
+    <section class="side-section">
+      <h2 class="side-label">Details</h2>
+      <%= form_with model: @ticket, url: ticket_path(@ticket, @list_params), class: "ticket-controls", data: { controller: "autosubmit" } do |f| %>
+        <%= f.label :assignee_id, "Assignee" %>
+        <%= f.collection_select :assignee_id, @agents, :id, :display_name, { include_blank: "Unassigned" }, data: { action: "change->autosubmit#submit" } %>
+        <%= f.label :status %>
+        <%= f.select :status, Ticket::STATUSES.map { |s| [ s.humanize, s ] }, {}, data: { action: "change->autosubmit#submit" } %>
+        <% if @inboxes.size > 1 %>
+          <%= f.label :inbox_id, "Inbox" %>
+          <%= f.collection_select :inbox_id, @inboxes, :id, :name, {}, data: { action: "change->autosubmit#submit" } %>
+        <% end %>
+        <noscript><%= f.submit "Update", class: "btn btn-secondary" %></noscript>
       <% end %>
-    </ul>
+      <dl class="facts">
+        <dt>Opened</dt><dd><%= l @ticket.created_at, format: :short %></dd>
+        <dt>Waiting</dt><dd><%= waiting_badge(@ticket) %></dd>
+      </dl>
+    </section>
+
+    <section class="side-section ticket-tags" id="tags">
+      <h2 class="side-label">Tags</h2>
+      <div class="tag-row">
+        <% @ticket.tags.each do |tag| %>
+          <span class="tag">
+            <%= link_to tag.name, tickets_path(filter: "all", tag: tag.name) %>
+            <%= button_to "×", ticket_tagging_path(@ticket, tag.name), method: :delete, class: "tag-remove", title: "Remove tag", aria: { label: "Remove tag #{tag.name}" } %>
+          </span>
+        <% end %>
+        <%= form_with url: ticket_taggings_path(@ticket), scope: :tagging, class: "add-tag" do |f| %>
+          <%= f.text_field :name, placeholder: "+ Add tag", list: "known-tags", aria: { label: "Add a tag" } %>
+          <datalist id="known-tags">
+            <% Tag.alphabetical.each do |tag| %><option value="<%= tag.name %>"></option><% end %>
+          </datalist>
+          <%= f.submit "Add", class: "visually-hidden" %>
+        <% end %>
+      </div>
+    </section>
+
+    <% if @other_tickets.any? %>
+      <section class="side-section other-tickets">
+        <h2 class="side-label">Other tickets from <%= @ticket.customer.display_name %></h2>
+        <ul>
+          <% @other_tickets.each do |other| %>
+            <li id="<%= dom_id(other, :other) %>">
+              <%= link_to other do %><span class="truncate"><%= other.subject %></span><%= status_pill(other) %><% end %>
+            </li>
+          <% end %>
+        </ul>
+      </section>
+    <% end %>
+
+    <button type="button" class="btn btn-secondary copy-link" data-controller="clipboard" data-clipboard-text-value="<%= portal_ticket_url(@ticket.portal_token) %>" data-action="clipboard#copy">
+      <%= icon :link, size: 15 %> <span data-clipboard-target="label">Copy customer portal link</span>
+    </button>
   </aside>
-<% end %>
-
-<%= form_with model: @ticket, class: "ticket-controls" do |f| %>
-  <%= f.label :assignee_id, "Assignee" %>
-  <%= f.collection_select :assignee_id, @agents, :id, :display_name, include_blank: "Unassigned" %>
-  <% if @inboxes.size > 1 %>
-    <%= f.label :inbox_id, "Inbox" %>
-    <%= f.collection_select :inbox_id, @inboxes, :id, :name %>
-  <% end %>
-  <%= f.label :status %>
-  <%= f.select :status, Ticket::STATUSES %>
-  <%= f.submit "Update" %>
-<% end %>
-
-<% unless @ticket.assignee == Current.user %>
-  <%= button_to "Assign to me", ticket_path(@ticket), method: :patch, params: { ticket: { assignee_id: Current.user.id } }, class: "secondary" %>
-<% end %>
-
-<section class="conversation">
-  <%= render partial: "shared/message", collection: @ticket.messages.includes(:user, attachments_attachments: :blob), as: :message %>
-</section>
-
-<%= form_with model: [ @ticket, @message ], class: "reply", data: { controller: "canned-reply" } do |f| %>
-  <% if @canned_replies.any? %>
-    <label for="canned_reply">Insert canned reply</label>
-    <select id="canned_reply" data-action="canned-reply#insert">
-      <option value="">Choose…</option>
-      <% @canned_replies.each do |reply| %>
-        <option value="<%= reply.render_for(ticket: @ticket, agent: Current.user) %>"><%= reply.title %></option>
-      <% end %>
-    </select>
-  <% end %>
-  <%= f.label :body, "Reply" %>
-  <%= f.text_area :body, rows: 8, data: { canned_reply_target: "body" } %>
-  <div class="reply-actions">
-    <%= f.submit "Send reply" %>
-    <%= f.submit "Add internal note", name: "note", class: "secondary" %>
-  </div>
-<% end %>
+</div>

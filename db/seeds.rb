@@ -48,6 +48,16 @@ else
     done.add_agent_reply!(user: agent, body: "Done! You can sign in with the new address now.")
     done.update!(status: "closed")
     done.rate!("good", comment: "Super quick, thanks!")
+
+    # Spread the demo tickets out in time, so the inbox shows realistic waiting times.
+    ticket.update_columns(waiting_since: 5.hours.ago, updated_at: 5.hours.ago)
+    ticket.messages.update_all(created_at: 5.hours.ago)
+    export.update_columns(waiting_since: 50.minutes.ago, updated_at: 50.minutes.ago)
+    export.messages.update_all(created_at: 50.minutes.ago)
+    other.messages.order(:id).each_with_index { |message, i| message.update_columns(created_at: (3.hours - (i * 20).minutes).ago) }
+    other.update_columns(updated_at: 2.hours.ago)
+    done.messages.update_all(created_at: 1.day.ago)
+    done.update_columns(updated_at: 1.day.ago)
   end
 
   puts "Sign in as agent@example.com / password"

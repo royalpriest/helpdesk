@@ -89,4 +89,23 @@ class TicketTest < ActiveSupport::TestCase
     tickets(:closed).destroy
     assert_empty Ticket.search("jordan")
   end
+
+  test "tracks how long the customer has been waiting on the team" do
+    ticket = tickets(:closed)
+    assert_nil ticket.waiting_for
+
+    ticket.add_customer_message!(body: "Me again")
+    assert ticket.open?
+    assert_in_delta Time.current, ticket.waiting_since, 5
+    first_wait = ticket.waiting_since
+
+    travel 2.hours do
+      ticket.add_customer_message!(body: "Anyone there?")
+      assert_equal first_wait, ticket.reload.waiting_since, "a follow-up doesn't reset the clock"
+      assert_equal "soon", ticket.waiting_level
+    end
+
+    ticket.add_agent_reply!(user: users(:one), body: "Here!")
+    assert_nil ticket.reload.waiting_since
+  end
 end

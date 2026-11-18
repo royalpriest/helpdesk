@@ -1,14 +1,18 @@
 <article class="message <%= message.from_agent? ? "agent" : "customer" %> <%= "internal" if message.internal? %>" id="<%= dom_id(message) %>">
-  <header>
-    <strong><%= message.author_name %><%= " · internal note" if message.internal? %></strong>
-    <time datetime="<%= message.created_at.iso8601 %>"><%= l message.created_at, format: :short %></time>
-  </header>
-  <%= simple_format(message.body) %>
-  <% if message.attachments.attached? %>
-    <ul class="attachments">
-      <% message.attachments.each do |attachment| %>
-        <li><%= link_to attachment.filename, rails_blob_path(attachment, disposition: "attachment") %> (<%= number_to_human_size(attachment.byte_size) %>)</li>
-      <% end %>
-    </ul>
-  <% end %>
+  <%= avatar message.author_name, size: :sm %>
+  <div class="message-content">
+    <header>
+      <strong><%= message.author_name %></strong>
+      <% if message.internal? %><span class="message-label">Internal note</span><% end %>
+      <time datetime="<%= message.created_at.iso8601 %>"><%= l message.created_at, format: :short %></time>
+    </header>
+    <div class="message-body"><%= simple_format(message.body) %></div>
+    <% if message.attachments.attached? %>
+      <ul class="attachments">
+        <% message.attachments.each do |attachment| %>
+          <li><%= link_to rails_blob_path(attachment, disposition: "attachment") do %><%= icon :clip, size: 14 %> <%= attachment.filename %><% end %> <span class="muted">(<%= number_to_human_size(attachment.byte_size) %>)</span></li>
+        <% end %>
+      </ul>
+    <% end %>
+  </div>
 </article>

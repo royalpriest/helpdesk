@@ -1,0 +1,63 @@
+<nav class="sidebar" aria-label="Main">
+  <%= link_to root_path, class: "brand" do %>
+    <span class="brand-mark">H</span>
+    <span class="brand-name">Helpdesk</span>
+  <% end %>
+
+  <%= form_with url: tickets_path, method: :get, class: "sidebar-search", role: "search" do |f| %>
+    <%= f.hidden_field :filter, value: @filter || "open" %>
+    <%= icon :search, size: 15 %>
+    <%= f.search_field :q, value: @query, placeholder: "Search tickets", aria: { label: "Search tickets" }, data: { shortcuts_target: "search" } %>
+    <kbd class="shortcut-hint">⌘K</kbd>
+    <%= f.submit "Search", name: nil, class: "visually-hidden" %>
+  <% end %>
+
+  <div class="sidebar-group filters">
+    <span class="sidebar-label">Views</span>
+    <% TicketsController::FILTERS.each do |filter| %>
+      <%= link_to tickets_path(filter: filter), class: ("active" if filter == @filter && controller_name == "tickets"), aria: { current: ("page" if filter == @filter && controller_name == "tickets") } do %>
+        <span><%= view_label(filter) %></span> <span class="count"><%= ticket_counts[filter] %></span>
+      <% end %>
+    <% end %>
+  </div>
+
+  <% inboxes = Inbox.alphabetical.to_a %>
+  <% if inboxes.size > 1 %>
+    <div class="sidebar-group">
+      <span class="sidebar-label">Inboxes</span>
+      <% inboxes.each_with_index do |inbox, index| %>
+        <%= link_to tickets_path(filter: "open", inbox: inbox.id), class: ("active" if @inbox == inbox) do %>
+          <span class="dot dot-<%= index % 4 %>"></span><span><%= inbox.name %></span>
+        <% end %>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% saved_views = Current.user.saved_views.alphabetical %>
+  <% if saved_views.any? %>
+    <div class="sidebar-group saved-views">
+      <span class="sidebar-label">Saved views</span>
+      <% saved_views.each do |view| %>
+        <div class="saved-view">
+          <%= link_to view.name, tickets_path(view.params) %>
+          <%= button_to "×", saved_view_path(view), method: :delete, class: "remove", title: "Delete view", aria: { label: "Delete the view #{view.name}" }, form: { data: { turbo_confirm: "Delete the view \"#{view.name}\"?" } } %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+
+  <div class="sidebar-group sidebar-footer">
+    <%= link_to "Canned replies", canned_replies_path, class: ("active" if controller_name == "canned_replies") %>
+    <% if Current.user.admin? %>
+      <%= link_to "Inboxes", inboxes_path, class: ("active" if controller_name == "inboxes") %>
+      <%= link_to "Agents", agents_path, class: ("active" if controller_name == "agents") %>
+    <% end %>
+    <div class="me">
+      <%= avatar Current.user.display_name, size: :sm %>
+      <div class="me-text">
+        <span class="me-name"><%= Current.user.display_name %></span>
+        <%= button_to "Sign out", session_path, method: :delete, class: "link-quiet" %>
+      </div>
+    </div>
+  </div>
+</nav>

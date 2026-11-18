@@ -11,24 +11,30 @@
     <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
   </head>
 
-  <body>
+  <body data-controller="shortcuts">
     <% if authenticated? %>
-      <header class="topbar">
-        <%= link_to "Helpdesk", root_path, class: "brand" %>
-        <nav>
-          <%= link_to "Tickets", tickets_path %>
-          <%= link_to "Canned replies", canned_replies_path %>
-          <% if Current.user.admin? %>
-            <%= link_to "Inboxes", inboxes_path %>
-            <%= link_to "Agents", agents_path %>
+      <div class="app">
+        <%= render "layouts/sidebar" %>
+        <div class="app-main">
+          <% if content_for?(:workspace) %>
+            <%= render "shared/flash" %>
+            <%= yield %>
+          <% else %>
+            <main class="page">
+              <%= render "shared/flash" %>
+              <%= yield %>
+            </main>
           <% end %>
-          <%= button_to "Sign out", session_path, method: :delete, class: "link" %>
-        </nav>
-      </header>
+        </div>
+      </div>
+    <% else %>
+      <main class="auth">
+        <div class="auth-card">
+          <div class="brand"><span class="brand-mark">H</span> Helpdesk</div>
+          <%= render "shared/flash" %>
+          <%= yield %>
+        </div>
+      </main>
     <% end %>
-    <main>
-      <%= render "shared/flash" %>
-      <%= yield %>
-    </main>
   </body>
 </html>

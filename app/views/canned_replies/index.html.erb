@@ -9,8 +9,10 @@
       <li id="<%= dom_id(reply) %>">
         <strong><%= reply.title %></strong>
         <p><%= truncate(reply.body, length: 140) %></p>
-        <%= link_to "Edit", edit_canned_reply_path(reply) %>
-        <%= button_to "Delete", reply, method: :delete, class: "link", form: { data: { turbo_confirm: "Delete this canned reply?" } } %>
+        <div class="card-actions">
+          <%= link_to "Edit", edit_canned_reply_path(reply) %>
+          <%= button_to "Delete", reply, method: :delete, class: "link", form: { data: { turbo_confirm: "Delete this canned reply?" } } %>
+        </div>
       </li>
     <% end %>
   </ul>

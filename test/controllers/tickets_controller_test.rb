@@ -47,6 +47,16 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
     assert_equal users(:one), tickets(:login).messages.last.user
   end
 
+  test "send and close replies, closes the ticket and asks for a rating" do
+    ticket = tickets(:login)
+    assert_enqueued_email_with TicketMailer, :rating_request, args: [ ticket ] do
+      post ticket_messages_path(ticket), params: { message: { body: "All fixed now." }, close: "1" }
+    end
+    assert ticket.reload.closed?
+    assert_nil ticket.waiting_since
+    assert_equal "All fixed now.", ticket.messages.last.body
+  end
+
   test "won't send a blank reply" do
     assert_no_difference "Message.count" do
       post ticket_messages_path(tickets(:login)), params: { message: { body: " " } }
@@ -55,8 +65,8 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
 
   test "shows a count next to each filter" do
     get tickets_path
-    assert_select ".filters a", text: /Mine\s+1/
-    assert_select ".filters a", text: /All\s+3/
+    assert_select ".filters a", text: /Assigned to me\s+1/
+    assert_select ".filters a", text: /All tickets\s+3/
   end
 
   test "shows a message for an empty filter" do
@@ -171,6 +181,27 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
 
   test "shows tags on inbox rows" do
     get tickets_path
-    assert_select "##{dom_id(tickets(:invoice))} a.tag", "billing"
+    assert_select "##{dom_id(tickets(:invoice))} .tag", "billing"
+  end
+
+  test "shows how long each ticket has been waiting" do
+    get tickets_path
+    assert_select "##{dom_id(tickets(:login))} .badge-soon", "Waiting 3h"
+    assert_select "##{dom_id(tickets(:invoice))} .badge", "On customer"
+  end
+
+  test "lists the longest waiting tickets first" do
+    newer = customers(:jordan).tickets.create!(subject: "Newer question")
+    newer.add_customer_message!(body: "Hello?")
+
+    get tickets_path
+    ids = css_select(".ticket-list li").map { |li| li["id"] }
+    assert_operator ids.index(dom_id(tickets(:login))), :<, ids.index(dom_id(newer))
+  end
+
+  test "the ticket page keeps the list and its filters" do
+    get ticket_path(tickets(:login), filter: "all")
+    assert_select ".ticket-list ##{dom_id(tickets(:closed))}"
+    assert_select ".ticket-item.current", count: 1
   end
 end
