@@ -1,6 +1,6 @@
 # Roadmap
 
-## v0.1: A usable shared inbox (now)
+## v0.1: A usable shared inbox (released as v0.1.0)
 - [x] Incoming email becomes tickets (Action Mailbox)
 - [x] Replies thread onto the right ticket
 - [x] Assign tickets, change status, filter the inbox
@@ -17,11 +17,12 @@
 - [x] Notify an agent when a ticket is assigned to them
 - [x] Search across tickets
 - [x] Placeholders in canned replies
-- [ ] Tags and saved views
+- [x] Tags and saved views
 
 ## v0.3: Running it for real
 - [x] Auto-close pending tickets after N days
-- [ ] Customer satisfaction rating after close
-- [ ] Multiple inboxes (e.g. support@ and billing@)
+- [x] Customer satisfaction rating after close
+- [x] Multiple inboxes (e.g. support@ and billing@)
 - [x] Single-server deploy guide
-- [ ] Docker image and one-click deploys
+- [x] Docker image
+- [ ] One-click deploys
