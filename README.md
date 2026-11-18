@@ -47,8 +47,9 @@ Agent replies are delivered by Active Job. In development you can see them in th
 | `SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` | Outgoing mail server (production) | none |
 | `ACTION_MAILBOX_INGRESS` | How inbound mail reaches the app: `relay`, `postmark`, `sendgrid`, `mailgun`, `mandrill` (production) | `relay` |
 | `AUTO_CLOSE_AFTER_DAYS` | Close tickets waiting on the customer after this many days (`0` turns it off) | `7` |
+| `FORCE_SSL`, `ASSUME_SSL` | Set to `false` to run without HTTPS, e.g. trying the Docker image locally (production) | `true` |
 
-To run it on your own server, follow the [deploy guide](docs/deploy.md).
+To run it on your own server, follow the [deploy guide](docs/deploy.md). It covers a plain server install and the Docker image.
 
 See the [Action Mailbox guide](https://guides.rubyonrails.org/action_mailbox_basics.html) for setting
 up your mail provider's ingress.
