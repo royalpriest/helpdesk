@@ -5,6 +5,8 @@ class Ticket < ApplicationRecord
   belongs_to :customer
   belongs_to :assignee, class_name: "User", optional: true
   has_many :messages, -> { order(:created_at) }, dependent: :destroy, inverse_of: :ticket
+  has_many :taggings, dependent: :destroy
+  has_many :tags, -> { order(:name) }, through: :taggings
 
   has_secure_token :portal_token
 
@@ -34,6 +36,14 @@ class Ticket < ApplicationRecord
       q: pattern
     ).select(:id)
     where(id: ids)
+  end
+
+  scope :tagged, ->(name) { name.blank? ? all : where(id: Tagging.joins(:tag).where(tags: { name: name.to_s.downcase }).select(:ticket_id)) }
+
+  def add_tag(name)
+    tag = Tag.find_or_create_by!(name: Tag.normalize_value_for(:name, name))
+    tags << tag unless tags.include?(tag)
+    tag
   end
 
   # The inbox filters: "mine", "unassigned", "open" or "all".
