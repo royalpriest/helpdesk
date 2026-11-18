@@ -1,0 +1,31 @@
+<% content_for :title, "Tickets" %>
+
+<h1>Tickets</h1>
+
+<nav class="filters">
+  <% TicketsController::FILTERS.each do |filter| %>
+    <%= link_to filter.humanize, tickets_path(filter: filter), class: ("active" if filter == @filter) %>
+  <% end %>
+</nav>
+
+<% if @tickets.any? %>
+  <table class="tickets">
+    <thead>
+      <tr><th>#</th><th>Subject</th><th>Customer</th><th>Status</th><th>Assignee</th><th>Updated</th></tr>
+    </thead>
+    <tbody>
+      <% @tickets.each do |ticket| %>
+        <tr id="<%= dom_id(ticket) %>">
+          <td><%= ticket.id %></td>
+          <td><%= link_to ticket.subject, ticket %></td>
+          <td><%= ticket.customer.display_name %></td>
+          <td><span class="status <%= ticket.status %>"><%= ticket.status %></span></td>
+          <td><%= ticket.assignee&.display_name || "Unassigned" %></td>
+          <td><%= time_ago_in_words(ticket.updated_at) %> ago</td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+<% else %>
+  <p class="empty">No tickets here.</p>
+<% end %>

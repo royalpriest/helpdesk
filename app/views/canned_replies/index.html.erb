@@ -1,0 +1,19 @@
+<% content_for :title, "Canned replies" %>
+
+<h1>Canned replies</h1>
+<p><%= link_to "New canned reply", new_canned_reply_path, class: "button" %></p>
+
+<% if @canned_replies.any? %>
+  <ul class="canned-replies">
+    <% @canned_replies.each do |reply| %>
+      <li id="<%= dom_id(reply) %>">
+        <strong><%= reply.title %></strong>
+        <p><%= truncate(reply.body, length: 140) %></p>
+        <%= link_to "Edit", edit_canned_reply_path(reply) %>
+        <%= button_to "Delete", reply, method: :delete, class: "link", form: { data: { turbo_confirm: "Delete this canned reply?" } } %>
+      </li>
+    <% end %>
+  </ul>
+<% else %>
+  <p class="empty">No canned replies yet.</p>
+<% end %>

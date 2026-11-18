@@ -1,0 +1,18 @@
+login:
+  customer: casey
+  subject: Can't log in
+  status: open
+  portal_token: casey-login-token
+
+invoice:
+  customer: casey
+  assignee: one
+  subject: Invoice question
+  status: pending
+  portal_token: casey-invoice-token
+
+closed:
+  customer: jordan
+  subject: Old question
+  status: closed
+  portal_token: jordan-closed-token

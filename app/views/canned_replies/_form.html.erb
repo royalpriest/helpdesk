@@ -1,0 +1,10 @@
+<%= form_with model: canned_reply do |f| %>
+  <% if canned_reply.errors.any? %>
+    <p class="flash alert"><%= canned_reply.errors.full_messages.to_sentence %></p>
+  <% end %>
+  <%= f.label :title %>
+  <%= f.text_field :title %>
+  <%= f.label :body %>
+  <%= f.text_area :body, rows: 8 %>
+  <%= f.submit "Save" %>
+<% end %>
