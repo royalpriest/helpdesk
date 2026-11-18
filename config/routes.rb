@@ -9,7 +9,13 @@ Rails.application.routes.draw do
   end
   resources :canned_replies, except: :show
   resources :saved_views, only: %i[create destroy]
-  resources :agents, only: %i[index new create update destroy]
+  resources :agents, only: %i[index new create destroy] do
+    member do
+      patch :reactivate
+      patch :make_admin
+      patch :remove_admin
+    end
+  end
   resources :invitations, only: %i[edit update], param: :token
 
   # Customer portal: reached by the private link in every email
