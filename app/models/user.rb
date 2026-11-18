@@ -15,6 +15,7 @@ class User < ApplicationRecord
   validates :email_address, presence: true, uniqueness: true
 
   scope :active, -> { where(deactivated_at: nil) }
+  scope :admins, -> { active.where(admin: true) }
   scope :alphabetical, -> { order(:name, :email_address) }
 
   # Creates an agent with a random password and emails them a link to choose their own.
@@ -39,6 +40,11 @@ class User < ApplicationRecord
       sessions.destroy_all
       assigned_tickets.not_closed.update_all(assignee_id: nil)
     end
+  end
+
+  # The team always needs at least one admin who can manage agents.
+  def last_admin?
+    admin? && User.admins.where.not(id: id).none?
   end
 
   def reactivate!

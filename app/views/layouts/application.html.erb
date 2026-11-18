@@ -18,7 +18,7 @@
         <nav>
           <%= link_to "Tickets", tickets_path %>
           <%= link_to "Canned replies", canned_replies_path %>
-          <%= link_to "Agents", agents_path %>
+          <%= link_to "Agents", agents_path if Current.user.admin? %>
           <%= button_to "Sign out", session_path, method: :delete, class: "link" %>
         </nav>
       </header>
