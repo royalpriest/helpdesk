@@ -1,0 +1,15 @@
+<% content_for :title, "How did we do?" %>
+
+<h1>How did we do?</h1>
+<p class="meta">Ticket <%= @ticket.reference %> · <%= @ticket.subject %></p>
+
+<%= form_with model: @ticket, url: portal_ticket_rating_path(@ticket.portal_token), method: :post, class: "rating-form" do |f| %>
+  <fieldset class="rating-choices">
+    <legend>Your rating</legend>
+    <label><%= f.radio_button :rating, "good", checked: @rating == "good" %> 👍 Good</label>
+    <label><%= f.radio_button :rating, "bad", checked: @rating == "bad" %> 👎 Not so good</label>
+  </fieldset>
+  <%= f.label :rating_comment, "Anything you'd like to add? (optional)" %>
+  <%= f.text_area :rating_comment, rows: 4 %>
+  <%= f.submit "Send feedback" %>
+<% end %>

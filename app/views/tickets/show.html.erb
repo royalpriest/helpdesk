@@ -5,6 +5,13 @@
 <h1><%= @ticket.reference %> <%= @ticket.subject %></h1>
 <p class="meta">From <%= @ticket.customer.display_name %> &lt;<%= @ticket.customer.email_address %>&gt; to <%= @ticket.inbox.name %> &lt;<%= @ticket.inbox.email_address %>&gt;</p>
 
+<% if @ticket.rated_at %>
+  <p class="rating <%= @ticket.rating %>">
+    Customer rated this <strong><%= @ticket.rating == "good" ? "👍 good" : "👎 not so good" %></strong>
+    <%= time_ago_in_words(@ticket.rated_at) %> ago<% if @ticket.rating_comment.present? %>: “<%= @ticket.rating_comment %>”<% end %>
+  </p>
+<% end %>
+
 <section class="ticket-tags" id="tags">
   <% @ticket.tags.each do |tag| %>
     <span class="tag">

@@ -3,6 +3,9 @@
 <%= turbo_stream_from :tickets %>
 
 <h1>Tickets</h1>
+<% if @satisfaction %>
+  <p class="meta satisfaction">Customer satisfaction, last 30 days: <strong><%= @satisfaction %>%</strong> good</p>
+<% end %>
 
 <% if @saved_views.any? %>
   <nav class="saved-views" aria-label="Saved views">

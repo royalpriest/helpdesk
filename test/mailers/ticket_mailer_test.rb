@@ -12,6 +12,16 @@ class TicketMailerTest < ActionMailer::TestCase
     assert_equal "All", email["X-Auto-Response-Suppress"].value
   end
 
+  test "rating request links to both ratings in the portal" do
+    email = TicketMailer.rating_request(tickets(:closed))
+
+    assert_equal [ "jordan@example.com" ], email.to
+    assert_equal [ tickets(:closed).inbox.email_address ], email.from
+    body = email.text_part.body.to_s
+    assert_match "/portal/tickets/jordan-closed-token/rating/new?rating=good", body
+    assert_match "/portal/tickets/jordan-closed-token/rating/new?rating=bad", body
+  end
+
   test "reply is sent from the ticket's inbox" do
     email = TicketMailer.reply(messages(:invoice_reply))
 

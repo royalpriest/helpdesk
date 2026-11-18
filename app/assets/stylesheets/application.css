@@ -77,3 +77,9 @@ td.actions form { display: inline; margin-right: .75rem; }
 .saved-views { display: flex; flex-wrap: wrap; gap: .75rem; align-items: center; margin-bottom: .75rem; }
 .saved-view form { display: inline; }
 .save-view { display: flex; gap: .5rem; margin-top: 1rem; max-width: 30rem; }
+.rating { padding: .5rem .75rem; border-radius: 6px; background: #e6f4ea; }
+.rating.bad { background: #fde8e7; }
+.rating-prompt { padding: .5rem .75rem; border-radius: 6px; background: #eef4ff; }
+.rating-choices { border: 0; padding: 0; display: flex; gap: 1.5rem; }
+.rating-choices legend { font-weight: 600; margin-bottom: .5rem; }
+.rating-choices label { display: inline-flex; gap: .35rem; font-weight: 400; margin: 0; }
