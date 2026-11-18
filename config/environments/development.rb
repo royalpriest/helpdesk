@@ -4,6 +4,11 @@ Rails.application.configure do
   # Let GitHub Codespaces open the app through its forwarded address.
   config.hosts << ".app.github.dev"
 
+  # Codespaces serves the app over HTTPS through a proxy that talks plain HTTP to Rails, so the
+  # browser's Origin header never matches and every form post would fail the CSRF origin check.
+  # The authenticity token is still checked.
+  config.action_controller.forgery_protection_origin_check = false if ENV["CODESPACES"]
+
   # Settings specified here will take precedence over those in config/application.rb.
 
   # Make code changes take effect immediately without server restart.
