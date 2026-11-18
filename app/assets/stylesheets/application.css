@@ -31,6 +31,7 @@ input[type=text], input[type=email], input[type=password], textarea, select { wi
 .ticket-controls select { width: auto; }
 
 .filters { display: flex; gap: 1rem; margin-bottom: 1rem; }
+.filters a { text-decoration: none; }
 .filters a.active { font-weight: 700; text-decoration: none; color: var(--ink); }
 
 table.tickets { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--line); }
@@ -52,3 +53,13 @@ table.tickets th, table.tickets td { text-align: left; padding: .5rem .75rem; bo
 .canned-replies { list-style: none; padding: 0; display: grid; gap: .75rem; }
 .canned-replies li { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: .75rem 1rem; }
 .canned-replies form { display: inline; margin-left: .5rem; }
+.filters .count { display: inline-block; min-width: 1.25rem; padding: 0 .35rem; border-radius: 999px; background: var(--line); color: var(--ink); font-size: .8rem; text-align: center; }
+.attachments { margin: .5rem 0 0; padding-left: 1.25rem; font-size: .9rem; }
+.message.internal { background: #fff8e1; border-style: dashed; }
+.reply-actions { display: flex; gap: .5rem; margin-top: .5rem; }
+input[type=submit].secondary { background: #fff; color: var(--accent); border: 1px solid var(--accent); }
+.other-tickets { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: .5rem 1rem; margin-bottom: 1rem; }
+.other-tickets h2 { font-size: 1rem; margin: .25rem 0; }
+.other-tickets ul { margin: 0; padding-left: 1.25rem; }
+.search { display: flex; gap: .5rem; margin-bottom: 1rem; }
+.search input[type=search] { flex: 1; padding: .5rem; border: 1px solid var(--line); border-radius: 6px; font: inherit; }

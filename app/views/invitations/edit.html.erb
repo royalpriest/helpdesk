@@ -1,0 +1,10 @@
+<h1>Welcome, <%= @user.display_name %></h1>
+<p>Choose a password to finish setting up your account.</p>
+
+<%= form_with url: invitation_path(params[:token]), method: :put do |form| %>
+  <%= form.label :password %>
+  <%= form.password_field :password, required: true, autocomplete: "new-password", maxlength: 72 %>
+  <%= form.label :password_confirmation, "Repeat password" %>
+  <%= form.password_field :password_confirmation, required: true, autocomplete: "new-password", maxlength: 72 %>
+  <%= form.submit "Save and sign in" %>
+<% end %>

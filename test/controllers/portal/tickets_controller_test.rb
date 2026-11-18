@@ -22,4 +22,16 @@ class Portal::TicketsControllerTest < ActionDispatch::IntegrationTest
     assert_nil ticket.messages.last.user
     assert ticket.reload.open?
   end
+
+  test "lists attachments on messages" do
+    messages(:invoice_first).attachments.attach(io: StringIO.new("pdf"), filename: "invoice.pdf")
+    get portal_ticket_path("casey-invoice-token")
+    assert_select ".attachments a", "invoice.pdf"
+  end
+
+  test "customers never see internal notes" do
+    get portal_ticket_path("casey-invoice-token")
+    assert_select ".message.internal", 0
+    assert_no_match "annual plan", response.body
+  end
 end

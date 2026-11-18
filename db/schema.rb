@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_18_060004) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_18_060007) do
   create_table "action_mailbox_inbound_emails", force: :cascade do |t|
     t.integer "status", default: 0, null: false
     t.string "message_id", null: false
@@ -70,6 +70,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_060004) do
     t.string "email_message_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "internal", default: false, null: false
     t.index ["email_message_id"], name: "index_messages_on_email_message_id", unique: true
     t.index ["ticket_id"], name: "index_messages_on_ticket_id"
     t.index ["user_id"], name: "index_messages_on_user_id"
@@ -92,8 +93,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_060004) do
     t.string "portal_token", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "pending_since"
     t.index ["assignee_id"], name: "index_tickets_on_assignee_id"
     t.index ["customer_id"], name: "index_tickets_on_customer_id"
+    t.index ["pending_since"], name: "index_tickets_on_pending_since"
     t.index ["portal_token"], name: "index_tickets_on_portal_token", unique: true
     t.index ["status"], name: "index_tickets_on_status"
   end
@@ -104,6 +107,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_060004) do
     t.string "name", default: "", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.datetime "deactivated_at"
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
