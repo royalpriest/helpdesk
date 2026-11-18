@@ -15,4 +15,7 @@ Thanks for helping out!
 
 5. Open a pull request that says which issue it closes (for example `Closes #3`).
 
+Please follow the [code of conduct](CODE_OF_CONDUCT.md). To report a security problem, see
+[SECURITY.md](SECURITY.md) instead of opening an issue.
+
 Keep pull requests small and focused. If you get stuck, ask on the issue. That's what it's for.
