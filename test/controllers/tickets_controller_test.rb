@@ -52,4 +52,16 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
       post ticket_messages_path(tickets(:login)), params: { message: { body: " " } }
     end
   end
+
+  test "shows a count next to each filter" do
+    get tickets_path
+    assert_select ".filters a", text: /Mine\s+1/
+    assert_select ".filters a", text: /All\s+3/
+  end
+
+  test "shows a message for an empty filter" do
+    Ticket.update_all(assignee_id: users(:one).id)
+    get tickets_path(filter: "unassigned")
+    assert_select "p.empty", "Every open ticket has an owner."
+  end
 end

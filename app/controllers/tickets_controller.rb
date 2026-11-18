@@ -5,7 +5,8 @@ class TicketsController < ApplicationController
 
   def index
     @filter = FILTERS.include?(params[:filter]) ? params[:filter] : "open"
-    @tickets = filtered_tickets.includes(:customer, :assignee).recent_first
+    @tickets = Ticket.for_filter(@filter, Current.user).includes(:customer, :assignee).recent_first
+    @counts = FILTERS.index_with { |filter| Ticket.for_filter(filter, Current.user).count }
   end
 
   def show
@@ -29,14 +30,5 @@ class TicketsController < ApplicationController
 
     def ticket_params
       params.expect(ticket: %i[assignee_id status])
-    end
-
-    def filtered_tickets
-      case @filter
-      when "mine" then Ticket.assigned_to(Current.user).where.not(status: "closed")
-      when "unassigned" then Ticket.unassigned.where.not(status: "closed")
-      when "open" then Ticket.where.not(status: "closed")
-      else Ticket.all
-      end
     end
 end
