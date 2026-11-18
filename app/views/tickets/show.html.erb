@@ -41,7 +41,7 @@
     <select id="canned_reply" data-action="canned-reply#insert">
       <option value="">Choose…</option>
       <% @canned_replies.each do |reply| %>
-        <option value="<%= reply.body %>"><%= reply.title %></option>
+        <option value="<%= reply.render_for(ticket: @ticket, agent: Current.user) %>"><%= reply.title %></option>
       <% end %>
     </select>
   <% end %>

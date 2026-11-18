@@ -11,7 +11,7 @@ CannedReply.find_or_create_by!(title: "Password reset") do |r|
   r.body = "You can reset your password from the sign in page by clicking \"Forgot password?\"."
 end
 CannedReply.find_or_create_by!(title: "Thanks, closing") do |r|
-  r.body = "Glad that's sorted! I'll close this ticket, but just reply if anything else comes up."
+  r.body = "Glad that's sorted, {{customer_name}}! I'll close this ticket, but just reply if anything else comes up."
 end
 
 if customer.tickets.none?
