@@ -6,6 +6,7 @@ class Ticket < ApplicationRecord
   RATINGS = %w[good bad].freeze
 
   belongs_to :customer
+  belongs_to :inbox, default: -> { Inbox.default }
   belongs_to :assignee, class_name: "User", optional: true
   has_many :messages, -> { order(:created_at) }, dependent: :destroy, inverse_of: :ticket
   has_many :taggings, dependent: :destroy

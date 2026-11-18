@@ -123,4 +123,27 @@ class SupportMailboxTest < ActionMailbox::TestCase
       receive_inbound_email_from_source(mail.to_s)
     end
   end
+
+  test "a new email lands in the inbox it was sent to" do
+    receive_inbound_email_from_mail \
+      to: "Billing <billing@example.com>", from: "riley@example.com",
+      subject: "Refund", body: "Please refund my order"
+
+    assert_equal inboxes(:billing), Ticket.last.inbox
+  end
+
+  test "uses the forwarded-to address when To doesn't match an inbox" do
+    mail = Mail.new(to: "team@forwarder.example", from: "riley@example.com", subject: "Invoice", body: "Hi")
+    mail["X-Original-To"] = "billing@example.com"
+    receive_inbound_email_from_source(mail.to_s)
+
+    assert_equal inboxes(:billing), Ticket.last.inbox
+  end
+
+  test "mail to an unknown address goes to the default inbox" do
+    receive_inbound_email_from_mail \
+      to: "random@example.com", from: "riley@example.com", subject: "Hello", body: "Hi"
+
+    assert_equal inboxes(:support), Ticket.last.inbox
+  end
 end

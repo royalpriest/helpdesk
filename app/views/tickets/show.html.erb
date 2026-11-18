@@ -3,7 +3,7 @@
 <%= turbo_stream_from @ticket %>
 
 <h1><%= @ticket.reference %> <%= @ticket.subject %></h1>
-<p class="meta">From <%= @ticket.customer.display_name %> &lt;<%= @ticket.customer.email_address %>&gt;</p>
+<p class="meta">From <%= @ticket.customer.display_name %> &lt;<%= @ticket.customer.email_address %>&gt; to <%= @ticket.inbox.name %> &lt;<%= @ticket.inbox.email_address %>&gt;</p>
 
 <% if @ticket.rated_at %>
   <p class="rating <%= @ticket.rating %>">
@@ -45,6 +45,10 @@
 <%= form_with model: @ticket, class: "ticket-controls" do |f| %>
   <%= f.label :assignee_id, "Assignee" %>
   <%= f.collection_select :assignee_id, @agents, :id, :display_name, include_blank: "Unassigned" %>
+  <% if @inboxes.size > 1 %>
+    <%= f.label :inbox_id, "Inbox" %>
+    <%= f.collection_select :inbox_id, @inboxes, :id, :name %>
+  <% end %>
   <%= f.label :status %>
   <%= f.select :status, Ticket::STATUSES %>
   <%= f.submit "Update" %>

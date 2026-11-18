@@ -10,7 +10,8 @@ class TicketMailer < ApplicationMailer
     headers["X-Auto-Response-Suppress"] = "All"
 
     mail to: @ticket.customer.email_address,
-         reply_to: Rails.configuration.x.support_email,
+         from: @ticket.inbox.from_address,
+         reply_to: @ticket.inbox.email_address,
          subject: "Re: #{@ticket.reference} #{@ticket.subject}"
   end
 
@@ -19,11 +20,13 @@ class TicketMailer < ApplicationMailer
     @ticket = ticket
     headers["X-Auto-Response-Suppress"] = "All"
     mail to: ticket.customer.email_address,
+         from: ticket.inbox.from_address,
+         reply_to: ticket.inbox.email_address,
          subject: "How did we do? #{ticket.reference} #{ticket.subject}"
   end
 
   private
     def mail_domain
-      Rails.configuration.x.support_email.split("@").last
+      @ticket.inbox.domain
     end
 end

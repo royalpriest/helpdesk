@@ -12,6 +12,8 @@ emails become tickets, and your team answers them from one shared inbox.
   the subject or the email's `References` header).
 - **Assignment.** Agents filter tickets by *Mine*, *Unassigned*, *Open* or *All*, and assign a ticket
   to themselves or a teammate. Tickets move between `open`, `pending` and `closed`.
+- **Multiple inboxes.** Run support@, billing@ and more from one helpdesk. Each ticket remembers
+  which address it came in on, and replies go out from that same address.
 - **Canned replies.** Save common answers and drop them into a reply from a menu.
 - **Satisfaction ratings.** When an agent closes a ticket, the customer gets a one-click
   "how did we do?" email. The inbox shows the share of good ratings over the last 30 days.
@@ -42,7 +44,7 @@ Agent replies are delivered by Active Job. In development you can see them in th
 
 | Variable | What it does | Default |
 | --- | --- | --- |
-| `SUPPORT_EMAIL` | The address customers write to and replies come from | `support@example.com` |
+| `SUPPORT_EMAIL` | The default inbox's address. Add more addresses (billing@, sales@) on the **Inboxes** page | `support@example.com` |
 | `APP_HOST` | Host used in links inside emails (production) | `example.com` |
 | `SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` | Outgoing mail server (production) | none |
 | `ACTION_MAILBOX_INGRESS` | How inbound mail reaches the app: `relay`, `postmark`, `sendgrid`, `mailgun`, `mandrill` (production) | `relay` |

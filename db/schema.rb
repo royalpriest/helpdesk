@@ -63,6 +63,14 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_060013) do
     t.index ["email_address"], name: "index_customers_on_email_address", unique: true
   end
 
+  create_table "inboxes", force: :cascade do |t|
+    t.string "name", null: false
+    t.string "email_address", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["email_address"], name: "index_inboxes_on_email_address", unique: true
+  end
+
   create_table "messages", force: :cascade do |t|
     t.integer "ticket_id", null: false
     t.integer "user_id"
@@ -122,11 +130,13 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_060013) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "pending_since"
+    t.integer "inbox_id", null: false
     t.string "rating"
     t.text "rating_comment"
     t.datetime "rated_at"
     t.index ["assignee_id"], name: "index_tickets_on_assignee_id"
     t.index ["customer_id"], name: "index_tickets_on_customer_id"
+    t.index ["inbox_id"], name: "index_tickets_on_inbox_id"
     t.index ["pending_since"], name: "index_tickets_on_pending_since"
     t.index ["portal_token"], name: "index_tickets_on_portal_token", unique: true
     t.index ["rated_at"], name: "index_tickets_on_rated_at"
@@ -153,6 +163,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_060013) do
   add_foreign_key "taggings", "tags"
   add_foreign_key "taggings", "tickets"
   add_foreign_key "tickets", "customers"
+  add_foreign_key "tickets", "inboxes"
   add_foreign_key "tickets", "users", column: "assignee_id"
 
   # Virtual tables defined in this database.

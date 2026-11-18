@@ -151,6 +151,17 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
     assert_select ".rating.good", /Quick and kind/
   end
 
+  test "filters the inbox by inbox" do
+    get tickets_path(filter: "all", inbox: inboxes(:billing).id)
+    assert_select "##{dom_id(tickets(:invoice))}"
+    assert_select "##{dom_id(tickets(:login))}", count: 0
+  end
+
+  test "moves a ticket to another inbox" do
+    patch ticket_path(tickets(:login)), params: { ticket: { inbox_id: inboxes(:billing).id } }
+    assert_equal inboxes(:billing), tickets(:login).reload.inbox
+  end
+
   test "filters the inbox by tag" do
     get tickets_path(filter: "all", tag: "billing")
     assert_select "##{dom_id(tickets(:invoice))}"
