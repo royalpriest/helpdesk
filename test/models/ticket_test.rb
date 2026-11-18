@@ -53,4 +53,28 @@ class TicketTest < ActiveSupport::TestCase
     ticket.add_customer_message!(body: "Yes")
     assert_nil ticket.reload.pending_since
   end
+
+  test "search matches words anywhere in the conversation, as prefixes" do
+    assert_equal [ tickets(:login) ], Ticket.search("invalid pass").to_a
+    assert_equal [ tickets(:invoice) ], Ticket.search("annual").to_a # internal note
+    assert_equal [ tickets(:closed) ], Ticket.search("jordan@example").to_a
+  end
+
+  test "new messages and tickets are searchable straight away" do
+    tickets(:login).add_customer_message!(body: "Still seeing the kaleidoscope error")
+    assert_equal [ tickets(:login) ], Ticket.search("kaleidoscope").to_a
+
+    ticket = customers(:jordan).tickets.create!(subject: "Refund request")
+    assert_includes Ticket.search("refund"), ticket
+  end
+
+  test "renaming a customer updates search" do
+    customers(:casey).update!(name: "Casey Zylberstein")
+    assert_equal 2, Ticket.search("zylberstein").count
+  end
+
+  test "deleted tickets drop out of search" do
+    tickets(:closed).destroy
+    assert_empty Ticket.search("jordan")
+  end
 end
