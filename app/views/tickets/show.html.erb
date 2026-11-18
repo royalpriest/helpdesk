@@ -1,5 +1,7 @@
 <% content_for :title, "#{@ticket.reference} #{@ticket.subject}" %>
 
+<%= turbo_stream_from @ticket %>
+
 <h1><%= @ticket.reference %> <%= @ticket.subject %></h1>
 <p class="meta">From <%= @ticket.customer.display_name %> &lt;<%= @ticket.customer.email_address %>&gt;</p>
 

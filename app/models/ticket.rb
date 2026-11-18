@@ -8,6 +8,10 @@ class Ticket < ApplicationRecord
 
   has_secure_token :portal_token
 
+  # Pages showing this ticket, and the inbox, refresh themselves when it changes.
+  broadcasts_refreshes
+  broadcasts_refreshes_to ->(_ticket) { :tickets }
+
   enum :status, STATUSES.index_by(&:itself), default: "open", validate: true
 
   validates :subject, presence: true
