@@ -1,0 +1,24 @@
+<% content_for :title, "Agents" %>
+
+<h1>Agents</h1>
+<p><%= link_to "Invite an agent", new_agent_path, class: "button" %></p>
+
+<table class="tickets">
+  <thead><tr><th>Name</th><th>Email</th><th>Status</th><th></th></tr></thead>
+  <tbody>
+    <% @agents.each do |agent| %>
+      <tr id="<%= dom_id(agent) %>">
+        <td><%= agent.display_name %></td>
+        <td><%= agent.email_address %></td>
+        <td><%= agent.active? ? "Active" : "Deactivated" %></td>
+        <td>
+          <% if agent.active? && agent != Current.user %>
+            <%= button_to "Deactivate", agent_path(agent), method: :delete, class: "link", form: { data: { turbo_confirm: "Deactivate #{agent.display_name}? They'll be signed out and unassigned from open tickets." } } %>
+          <% elsif !agent.active? %>
+            <%= button_to "Reactivate", agent_path(agent), method: :patch, class: "link" %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>

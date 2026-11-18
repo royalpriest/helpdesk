@@ -34,4 +34,10 @@ class CannedRepliesControllerTest < ActionDispatch::IntegrationTest
     get ticket_path(tickets(:login))
     assert_select "select#canned_reply option", text: "Password reset"
   end
+
+  test "placeholders are filled in on the ticket page" do
+    CannedReply.create!(title: "Greeting", body: "Hi {{customer_name}}")
+    get ticket_path(tickets(:login))
+    assert_select "select#canned_reply option[value=?]", "Hi Casey Customer"
+  end
 end

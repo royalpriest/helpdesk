@@ -1,0 +1,13 @@
+<h1>Invite an agent</h1>
+<p>They'll get an email with a link to choose their password.</p>
+
+<%= form_with model: @agent, url: agents_path do |f| %>
+  <% if @agent.errors.any? %>
+    <div class="flash alert"><%= @agent.errors.full_messages.to_sentence %></div>
+  <% end %>
+  <%= f.label :name %>
+  <%= f.text_field :name %>
+  <%= f.label :email_address %>
+  <%= f.email_field :email_address, required: true %>
+  <%= f.submit "Send invitation" %>
+<% end %>

@@ -49,4 +49,32 @@ class SupportMailboxTest < ActionMailbox::TestCase
     end
     assert_not_equal "Let me in", ticket.messages.last.body
   end
+
+  test "only the new text of an email reply is saved" do
+    ticket = tickets(:login)
+
+    receive_inbound_email_from_mail \
+      to: "support@example.com", from: "casey@example.com",
+      subject: "Re: #{ticket.reference} Can't log in",
+      body: "Works now!\n\nOn Tue, Nov 18, 2026 at 9:00 AM Support <support@example.com> wrote:\n> Try again"
+
+    assert_equal "Works now!", ticket.messages.last.body
+  end
+
+  test "saves attachments from the email" do
+    mail = Mail.new do
+      to "support@example.com"
+      from "casey@example.com"
+      subject "Screenshot of the error"
+      body "See attached"
+      add_file filename: "error.txt", content: "Something went wrong"
+    end
+
+    receive_inbound_email_from_source(mail.to_s)
+
+    message = Ticket.last.messages.last
+    assert_equal "See attached", message.body
+    assert_equal [ "error.txt" ], message.attachments.map { |a| a.filename.to_s }
+    assert_equal "Something went wrong", message.attachments.first.download
+  end
 end
