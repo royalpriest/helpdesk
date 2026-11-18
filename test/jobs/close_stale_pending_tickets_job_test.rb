@@ -1,6 +1,8 @@
 require "test_helper"
 
 class CloseStalePendingTicketsJobTest < ActiveJob::TestCase
+  include ActionMailer::TestHelper
+
   test "closes tickets pending longer than the limit" do
     tickets(:invoice).update_column(:pending_since, 8.days.ago)
 
@@ -22,5 +24,12 @@ class CloseStalePendingTicketsJobTest < ActiveJob::TestCase
     tickets(:invoice).update_column(:pending_since, 100.days.ago)
     CloseStalePendingTicketsJob.perform_now(days: 0)
     assert tickets(:invoice).reload.pending?
+  end
+
+  test "auto-closing never sends a rating request" do
+    tickets(:invoice).update_column(:pending_since, 8.days.ago)
+    assert_no_enqueued_emails do
+      CloseStalePendingTicketsJob.perform_now(days: 7)
+    end
   end
 end

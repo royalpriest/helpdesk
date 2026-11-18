@@ -13,6 +13,8 @@ emails become tickets, and your team answers them from one shared inbox.
 - **Assignment.** Agents filter tickets by *Mine*, *Unassigned*, *Open* or *All*, and assign a ticket
   to themselves or a teammate. Tickets move between `open`, `pending` and `closed`.
 - **Canned replies.** Save common answers and drop them into a reply from a menu.
+- **Satisfaction ratings.** When an agent closes a ticket, the customer gets a one-click
+  "how did we do?" email. The inbox shows the share of good ratings over the last 30 days.
 - **Customer portal.** Every reply email links to a private page where the customer can read the
   whole conversation and answer from the browser. No customer accounts or passwords needed.
 
@@ -45,6 +47,7 @@ Agent replies are delivered by Active Job. In development you can see them in th
 | `SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` | Outgoing mail server (production) | none |
 | `ACTION_MAILBOX_INGRESS` | How inbound mail reaches the app: `relay`, `postmark`, `sendgrid`, `mailgun`, `mandrill` (production) | `relay` |
 | `AUTO_CLOSE_AFTER_DAYS` | Close tickets waiting on the customer after this many days (`0` turns it off) | `7` |
+| `SATISFACTION_SURVEYS` | Email customers a rating request when an agent closes their ticket (`false` turns it off) | `true` |
 
 To run it on your own server, follow the [deploy guide](docs/deploy.md).
 

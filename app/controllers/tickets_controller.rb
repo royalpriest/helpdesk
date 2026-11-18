@@ -7,6 +7,7 @@ class TicketsController < ApplicationController
     @filter = FILTERS.include?(params[:filter]) ? params[:filter] : "open"
     @query = params[:q].to_s.strip
     @tickets = Ticket.for_filter(@filter, Current.user).search(@query).includes(:customer, :assignee).recent_first
+    @satisfaction = Ticket.satisfaction_score
     @counts = FILTERS.index_with { |filter| Ticket.for_filter(filter, Current.user).count }
   end
 
@@ -20,6 +21,7 @@ class TicketsController < ApplicationController
   def update
     if @ticket.update(ticket_params)
       notify_new_assignee
+      request_rating
       redirect_to @ticket, notice: "Ticket updated."
     else
       redirect_to @ticket, alert: @ticket.errors.full_messages.to_sentence
@@ -37,6 +39,15 @@ class TicketsController < ApplicationController
       return if @ticket.assignee.nil? || @ticket.assignee == Current.user
 
       AgentMailer.assigned(@ticket, assigned_by: Current.user).deliver_later
+    end
+
+    # When an agent closes a ticket, ask the customer how it went.
+    def request_rating
+      return unless Rails.configuration.x.satisfaction_surveys
+      return unless @ticket.saved_change_to_status? && @ticket.closed?
+
+      @ticket.update!(rating: nil, rating_comment: nil, rated_at: nil)
+      TicketMailer.rating_request(@ticket).deliver_later
     end
 
     def ticket_params

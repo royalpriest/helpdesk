@@ -106,7 +106,7 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
 
   test "doesn't email when only the status changes" do
     assert_no_enqueued_emails do
-      patch ticket_path(tickets(:invoice)), params: { ticket: { status: "closed" } }
+      patch ticket_path(tickets(:invoice)), params: { ticket: { status: "open" } }
     end
   end
 
@@ -123,5 +123,31 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
 
     get tickets_path(filter: "all", q: "jordan@")
     assert_select "##{dom_id(tickets(:closed))}"
+  end
+
+  test "closing a ticket asks the customer for a rating" do
+    assert_enqueued_email_with TicketMailer, :rating_request, args: [ tickets(:login) ] do
+      patch ticket_path(tickets(:login)), params: { ticket: { status: "closed" } }
+    end
+  end
+
+  test "no rating request when surveys are turned off" do
+    Rails.configuration.x.satisfaction_surveys = false
+    assert_no_enqueued_emails do
+      patch ticket_path(tickets(:login)), params: { ticket: { status: "closed" } }
+    end
+  ensure
+    Rails.configuration.x.satisfaction_surveys = true
+  end
+
+  test "shows the satisfaction score and a ticket's rating" do
+    tickets(:closed).rate!("good", comment: "Quick and kind")
+    tickets(:invoice).rate!("bad")
+
+    get tickets_path
+    assert_select ".satisfaction strong", "50%"
+
+    get ticket_path(tickets(:closed))
+    assert_select ".rating.good", /Quick and kind/
   end
 end

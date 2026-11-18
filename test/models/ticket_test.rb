@@ -53,4 +53,16 @@ class TicketTest < ActiveSupport::TestCase
     ticket.add_customer_message!(body: "Yes")
     assert_nil ticket.reload.pending_since
   end
+
+  test "satisfaction score counts recent ratings only" do
+    assert_nil Ticket.satisfaction_score
+
+    tickets(:login).rate!("good")
+    tickets(:invoice).rate!("good")
+    tickets(:closed).rate!("bad")
+    assert_equal 67, Ticket.satisfaction_score
+
+    tickets(:closed).update!(rated_at: 2.months.ago)
+    assert_equal 100, Ticket.satisfaction_score
+  end
 end

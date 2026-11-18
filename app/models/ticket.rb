@@ -1,6 +1,7 @@
 # A conversation with a customer.
 class Ticket < ApplicationRecord
   STATUSES = %w[open pending closed].freeze
+  RATINGS = %w[good bad].freeze
 
   belongs_to :customer
   belongs_to :assignee, class_name: "User", optional: true
@@ -15,6 +16,7 @@ class Ticket < ApplicationRecord
   enum :status, STATUSES.index_by(&:itself), default: "open", validate: true
 
   validates :subject, presence: true
+  validates :rating, inclusion: { in: RATINGS }, allow_nil: true
 
   before_save :track_pending_since, if: :status_changed?
 
@@ -34,6 +36,23 @@ class Ticket < ApplicationRecord
       q: pattern
     ).select(:id)
     where(id: ids)
+  end
+
+  scope :rated_since, ->(time) { where(rated_at: time..) }
+
+  # Share of "good" ratings, as a whole percentage, or nil with no ratings.
+  def self.satisfaction_score(since: 30.days.ago)
+    rated = rated_since(since)
+    total = rated.count
+    (rated.where(rating: "good").count * 100.0 / total).round if total.positive?
+  end
+
+  def rate!(rating, comment: nil)
+    update!(rating: rating, rating_comment: comment.presence, rated_at: Time.current)
+  end
+
+  def awaiting_rating?
+    closed? && rated_at.nil?
   end
 
   # The inbox filters: "mine", "unassigned", "open" or "all".

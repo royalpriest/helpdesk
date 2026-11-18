@@ -14,6 +14,7 @@ Rails.application.routes.draw do
   namespace :portal do
     resources :tickets, only: :show, param: :token do
       resources :messages, only: :create
+      resource :rating, only: %i[new create]
     end
   end
 
