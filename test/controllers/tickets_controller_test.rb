@@ -135,4 +135,16 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
     patch ticket_path(tickets(:login)), params: { ticket: { inbox_id: inboxes(:billing).id } }
     assert_equal inboxes(:billing), tickets(:login).reload.inbox
   end
+
+  test "filters the inbox by tag" do
+    get tickets_path(filter: "all", tag: "billing")
+    assert_select "##{dom_id(tickets(:invoice))}"
+    assert_select "##{dom_id(tickets(:login))}", count: 0
+    assert_select "form.save-view"
+  end
+
+  test "shows tags on inbox rows" do
+    get tickets_path
+    assert_select "##{dom_id(tickets(:invoice))} a.tag", "billing"
+  end
 end

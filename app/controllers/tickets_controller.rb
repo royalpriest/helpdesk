@@ -6,11 +6,14 @@ class TicketsController < ApplicationController
   def index
     @filter = FILTERS.include?(params[:filter]) ? params[:filter] : "open"
     @query = params[:q].to_s.strip
+    @tag = params[:tag].to_s.strip.downcase.presence
     @inboxes = Inbox.alphabetical.to_a
     @inbox = @inboxes.find { |inbox| inbox.id.to_s == params[:inbox] }
-    tickets = Ticket.for_filter(@filter, Current.user).search(@query)
+    tickets = Ticket.for_filter(@filter, Current.user).tagged(@tag).search(@query)
     tickets = tickets.where(inbox: @inbox) if @inbox
-    @tickets = tickets.includes(:customer, :assignee, :inbox).recent_first
+    @tickets = tickets.includes(:customer, :assignee, :inbox, :tags).recent_first
+    @tags = Tag.in_use.alphabetical
+    @saved_views = Current.user.saved_views.alphabetical
     @counts = FILTERS.index_with { |filter| Ticket.for_filter(filter, Current.user).count }
   end
 

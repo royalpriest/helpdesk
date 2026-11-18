@@ -8,6 +8,8 @@ class Ticket < ApplicationRecord
   belongs_to :inbox, default: -> { Inbox.default }
   belongs_to :assignee, class_name: "User", optional: true
   has_many :messages, -> { order(:created_at) }, dependent: :destroy, inverse_of: :ticket
+  has_many :taggings, dependent: :destroy
+  has_many :tags, -> { order(:name) }, through: :taggings
 
   has_secure_token :portal_token
 
@@ -26,6 +28,14 @@ class Ticket < ApplicationRecord
   scope :recent_first, -> { order(updated_at: :desc) }
   scope :not_closed, -> { where.not(status: "closed") }
   scope :pending_before, ->(time) { pending.where(pending_since: ...time) }
+
+  scope :tagged, ->(name) { name.blank? ? all : where(id: Tagging.joins(:tag).where(tags: { name: name.to_s.downcase }).select(:ticket_id)) }
+
+  def add_tag(name)
+    tag = Tag.find_or_create_by!(name: Tag.normalize_value_for(:name, name))
+    tags << tag unless tags.include?(tag)
+    tag
+  end
 
   # The inbox filters: "mine", "unassigned", "open" or "all".
   def self.for_filter(filter, user)
