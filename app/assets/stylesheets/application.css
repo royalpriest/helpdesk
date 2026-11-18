@@ -57,3 +57,6 @@ table.tickets th, table.tickets td { text-align: left; padding: .5rem .75rem; bo
 .message.internal { background: #fff8e1; border-style: dashed; }
 .reply-actions { display: flex; gap: .5rem; margin-top: .5rem; }
 input[type=submit].secondary { background: #fff; color: var(--accent); border: 1px solid var(--accent); }
+.other-tickets { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: .5rem 1rem; margin-bottom: 1rem; }
+.other-tickets h2 { font-size: 1rem; margin: .25rem 0; }
+.other-tickets ul { margin: 0; padding-left: 1.25rem; }

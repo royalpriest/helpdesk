@@ -13,6 +13,7 @@ class TicketsController < ApplicationController
     @message = @ticket.messages.new
     @canned_replies = CannedReply.alphabetical
     @agents = User.active.alphabetical
+    @other_tickets = @ticket.customer.tickets.where.not(id: @ticket.id).recent_first
   end
 
   def update

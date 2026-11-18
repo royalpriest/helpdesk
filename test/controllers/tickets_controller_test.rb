@@ -80,4 +80,15 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
     get ticket_path(tickets(:invoice))
     assert_select ".message.internal", 1
   end
+
+  test "lists the customer's other tickets" do
+    get ticket_path(tickets(:login))
+    assert_select ".other-tickets ##{dom_id(tickets(:invoice), :other)}"
+    assert_select ".other-tickets ##{dom_id(tickets(:login), :other)}", count: 0
+  end
+
+  test "hides the other tickets section when there are none" do
+    get ticket_path(tickets(:closed))
+    assert_select ".other-tickets", count: 0
+  end
 end
