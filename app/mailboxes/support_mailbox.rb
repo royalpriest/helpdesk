@@ -42,6 +42,6 @@ class SupportMailbox < ApplicationMailbox
       part = mail.multipart? ? (mail.text_part || mail.html_part) : mail
       text = part&.decoded.to_s
       text = ActionController::Base.helpers.strip_tags(text) if part&.mime_type == "text/html"
-      text.strip.presence || "(empty message)"
+      EmailReply.strip_quoted(text).presence || "(empty message)"
     end
 end
