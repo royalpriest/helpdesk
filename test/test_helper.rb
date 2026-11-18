@@ -11,6 +11,9 @@ module ActiveSupport
     # Setup all fixtures in test/fixtures/*.yml for all tests in alphabetical order.
     fixtures :all
 
+    # Fixtures skip model callbacks, so fill the full-text search index by hand.
+    setup { Ticket.rebuild_search_index }
+
     # Add more helper methods to be used by all tests here...
   end
 end

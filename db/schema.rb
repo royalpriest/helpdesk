@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[8.1].define(version: 2026_11_18_060007) do
+ActiveRecord::Schema[8.1].define(version: 2026_11_18_060009) do
   create_table "action_mailbox_inbound_emails", force: :cascade do |t|
     t.integer "status", default: 0, null: false
     t.string "message_id", null: false
@@ -118,4 +118,8 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_060007) do
   add_foreign_key "sessions", "users"
   add_foreign_key "tickets", "customers"
   add_foreign_key "tickets", "users", column: "assignee_id"
+
+  # Virtual tables defined in this database.
+  # Note that virtual tables may not work with other database engines. Be careful if changing database.
+  create_virtual_table "ticket_search", "fts5", ["subject", "body", "customer", "tokenize='unicode61 remove_diacritics 2'"]
 end
