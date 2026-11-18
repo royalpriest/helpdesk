@@ -3,6 +3,7 @@
 class Message < ApplicationRecord
   belongs_to :ticket, inverse_of: :messages
   belongs_to :user, optional: true
+  has_many_attached :attachments
 
   validates :body, presence: true
 

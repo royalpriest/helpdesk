@@ -60,4 +60,21 @@ class SupportMailboxTest < ActionMailbox::TestCase
 
     assert_equal "Works now!", ticket.messages.last.body
   end
+
+  test "saves attachments from the email" do
+    mail = Mail.new do
+      to "support@example.com"
+      from "casey@example.com"
+      subject "Screenshot of the error"
+      body "See attached"
+      add_file filename: "error.txt", content: "Something went wrong"
+    end
+
+    receive_inbound_email_from_source(mail.to_s)
+
+    message = Ticket.last.messages.last
+    assert_equal "See attached", message.body
+    assert_equal [ "error.txt" ], message.attachments.map { |a| a.filename.to_s }
+    assert_equal "Something went wrong", message.attachments.first.download
+  end
 end

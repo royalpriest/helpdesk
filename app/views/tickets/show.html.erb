@@ -16,7 +16,7 @@
 <% end %>
 
 <section class="conversation">
-  <%= render partial: "shared/message", collection: @ticket.messages.includes(:user), as: :message %>
+  <%= render partial: "shared/message", collection: @ticket.messages.includes(:user, attachments_attachments: :blob), as: :message %>
 </section>
 
 <%= form_with model: [ @ticket, @message ], class: "reply", data: { controller: "canned-reply" } do |f| %>

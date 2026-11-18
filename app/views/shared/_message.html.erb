@@ -4,4 +4,11 @@
     <time datetime="<%= message.created_at.iso8601 %>"><%= l message.created_at, format: :short %></time>
   </header>
   <%= simple_format(message.body) %>
+  <% if message.attachments.attached? %>
+    <ul class="attachments">
+      <% message.attachments.each do |attachment| %>
+        <li><%= link_to attachment.filename, rails_blob_path(attachment, disposition: "attachment") %> (<%= number_to_human_size(attachment.byte_size) %>)</li>
+      <% end %>
+    </ul>
+  <% end %>
 </article>

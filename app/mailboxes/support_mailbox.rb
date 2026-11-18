@@ -5,12 +5,8 @@ class SupportMailbox < ApplicationMailbox
   before_processing :skip_duplicates
 
   def process
-    if (ticket = existing_ticket)
-      ticket.add_customer_message!(body: body, email_message_id: mail.message_id)
-    else
-      ticket = customer.tickets.create!(subject: subject)
-      ticket.add_customer_message!(body: body, email_message_id: mail.message_id)
-    end
+    ticket = existing_ticket || customer.tickets.create!(subject: subject)
+    ticket.add_customer_message!(body: body, email_message_id: mail.message_id, attachments: attachments)
   end
 
   private
@@ -36,6 +32,16 @@ class SupportMailbox < ApplicationMailbox
 
     def subject
       mail.subject.presence || "(no subject)"
+    end
+
+    def attachments
+      mail.attachments.reject(&:inline?).map do |attachment|
+        {
+          io: StringIO.new(attachment.decoded),
+          filename: attachment.filename,
+          content_type: attachment.mime_type
+        }
+      end
     end
 
     def body

@@ -38,9 +38,9 @@ class Ticket < ApplicationRecord
   end
 
   # Records a customer's message and reopens the ticket if it was closed.
-  def add_customer_message!(body:, email_message_id: nil)
+  def add_customer_message!(body:, email_message_id: nil, attachments: [])
     transaction do
-      messages.create!(body: body, email_message_id: email_message_id)
+      messages.create!(body: body, email_message_id: email_message_id, attachments: attachments)
       update!(status: "open") unless open?
       touch
     end
