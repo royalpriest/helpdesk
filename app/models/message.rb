@@ -7,6 +7,9 @@ class Message < ApplicationRecord
 
   validates :body, presence: true
 
+  # Internal notes are for agents only: never emailed, never shown in the portal.
+  scope :visible_to_customer, -> { where(internal: false) }
+
   def from_agent?
     user_id.present?
   end

@@ -31,5 +31,8 @@
   <% end %>
   <%= f.label :body, "Reply" %>
   <%= f.text_area :body, rows: 8, data: { canned_reply_target: "body" } %>
-  <%= f.submit "Send reply" %>
+  <div class="reply-actions">
+    <%= f.submit "Send reply" %>
+    <%= f.submit "Add internal note", name: "note", class: "secondary" %>
+  </div>
 <% end %>

@@ -46,6 +46,14 @@ class Ticket < ApplicationRecord
     end
   end
 
+  # Records a note only agents can see. It isn't emailed and doesn't change the status.
+  def add_internal_note!(user:, body:)
+    transaction do
+      touch
+      messages.create!(user: user, body: body, internal: true)
+    end
+  end
+
   # Records an agent's reply and emails it to the customer.
   def add_agent_reply!(user:, body:)
     message = transaction do
