@@ -3,6 +3,9 @@
 <%= turbo_stream_from :tickets %>
 
 <h1>Tickets</h1>
+<% if @satisfaction %>
+  <p class="meta satisfaction">Customer satisfaction, last 30 days: <strong><%= @satisfaction %>%</strong> good</p>
+<% end %>
 
 <%= form_with url: tickets_path, method: :get, class: "search" do |f| %>
   <%= f.hidden_field :filter, value: @filter %>

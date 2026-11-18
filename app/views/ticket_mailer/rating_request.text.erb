@@ -1,0 +1,8 @@
+Hi <%= @ticket.customer.display_name %>,
+
+We've closed your request "<%= @ticket.subject %>". How did we do?
+
+Good: <%= new_portal_ticket_rating_url(@ticket.portal_token, rating: "good") %>
+Not so good: <%= new_portal_ticket_rating_url(@ticket.portal_token, rating: "bad") %>
+
+If you still need help, just reply to this email and we'll reopen it.
