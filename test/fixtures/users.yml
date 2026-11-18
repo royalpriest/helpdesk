@@ -3,6 +3,7 @@
 one:
   email_address: one@example.com
   name: Alex Agent
+  admin: true
   password_digest: <%= password_digest %>
 
 two:
