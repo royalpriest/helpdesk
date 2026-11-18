@@ -12,7 +12,7 @@ class TicketsController < ApplicationController
   def show
     @message = @ticket.messages.new
     @canned_replies = CannedReply.alphabetical
-    @agents = User.order(:name, :email_address)
+    @agents = User.active.alphabetical
   end
 
   def update

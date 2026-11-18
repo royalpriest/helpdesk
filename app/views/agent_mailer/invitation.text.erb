@@ -1,0 +1,6 @@
+Hi <%= @user.display_name %>,
+
+You've been added as an agent on the helpdesk. Choose a password to get started:
+<%= edit_invitation_url(@user.generate_token_for(:invitation)) %>
+
+This link expires in 7 days.
