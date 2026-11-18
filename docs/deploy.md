@@ -70,7 +70,7 @@ bin/rails assets:precompile
 Create your first agent (demo data is never loaded in production):
 
 ```sh
-bin/rails runner 'User.create!(name: "Your Name", email_address: "you@example.com", password: "a-long-password")'
+bin/rails runner 'User.create!(name: "Your Name", email_address: "you@example.com", password: "a-long-password", admin: true)'
 ```
 
 ## 4. Run it with systemd
