@@ -6,6 +6,7 @@ if Rails.env.production?
 else
   agent = User.find_or_create_by!(email_address: "agent@example.com") do |u|
     u.name = "Demo Agent"
+    u.admin = true
     u.password = "password"
   end
 
