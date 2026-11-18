@@ -18,6 +18,7 @@ class TicketsController < ApplicationController
 
   def update
     if @ticket.update(ticket_params)
+      notify_new_assignee
       redirect_to @ticket, notice: "Ticket updated."
     else
       redirect_to @ticket, alert: @ticket.errors.full_messages.to_sentence
@@ -27,6 +28,14 @@ class TicketsController < ApplicationController
   private
     def set_ticket
       @ticket = Ticket.find(params[:id])
+    end
+
+    # Lets an agent know when a teammate hands them a ticket.
+    def notify_new_assignee
+      return unless @ticket.saved_change_to_assignee_id?
+      return if @ticket.assignee.nil? || @ticket.assignee == Current.user
+
+      AgentMailer.assigned(@ticket, assigned_by: Current.user).deliver_later
     end
 
     def ticket_params

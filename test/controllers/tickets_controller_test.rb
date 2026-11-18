@@ -91,4 +91,22 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
     get ticket_path(tickets(:closed))
     assert_select ".other-tickets", count: 0
   end
+
+  test "emails an agent when a teammate assigns them a ticket" do
+    assert_enqueued_emails 1 do
+      patch ticket_path(tickets(:login)), params: { ticket: { assignee_id: users(:two).id } }
+    end
+  end
+
+  test "doesn't email you when you assign a ticket to yourself" do
+    assert_no_enqueued_emails do
+      patch ticket_path(tickets(:login)), params: { ticket: { assignee_id: users(:one).id } }
+    end
+  end
+
+  test "doesn't email when only the status changes" do
+    assert_no_enqueued_emails do
+      patch ticket_path(tickets(:invoice)), params: { ticket: { status: "closed" } }
+    end
+  end
 end
