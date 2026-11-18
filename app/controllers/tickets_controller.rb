@@ -3,19 +3,10 @@ class TicketsController < ApplicationController
 
   before_action :set_ticket, only: %i[show update]
 
+  before_action :load_ticket_list, only: %i[index show]
+
   def index
-    @filter = FILTERS.include?(params[:filter]) ? params[:filter] : "open"
-    @query = params[:q].to_s.strip
-    @tag = params[:tag].to_s.strip.downcase.presence
-    @inboxes = Inbox.alphabetical.to_a
-    @inbox = @inboxes.find { |inbox| inbox.id.to_s == params[:inbox] }
-    tickets = Ticket.for_filter(@filter, Current.user).tagged(@tag).search(@query)
-    tickets = tickets.where(inbox: @inbox) if @inbox
-    @tickets = tickets.includes(:customer, :assignee, :inbox, :tags).recent_first
-    @tags = Tag.in_use.alphabetical
-    @saved_views = Current.user.saved_views.alphabetical
     @satisfaction = Ticket.satisfaction_score
-    @counts = FILTERS.index_with { |filter| Ticket.for_filter(filter, Current.user).count }
   end
 
   def show
@@ -30,13 +21,34 @@ class TicketsController < ApplicationController
     if @ticket.update(ticket_params)
       notify_new_assignee
       request_rating
-      redirect_to @ticket, notice: "Ticket updated."
+      redirect_to ticket_path(@ticket, list_params), notice: "Ticket updated."
     else
-      redirect_to @ticket, alert: @ticket.errors.full_messages.to_sentence
+      redirect_to ticket_path(@ticket, list_params), alert: @ticket.errors.full_messages.to_sentence
     end
   end
 
   private
+    # The list pane is on both the inbox and the ticket page, so agents can move
+    # between tickets without losing their place.
+    def load_ticket_list
+      @filter = FILTERS.include?(params[:filter]) ? params[:filter] : "open"
+      @query = params[:q].to_s.strip
+      @tag = params[:tag].to_s.strip.downcase.presence
+      @inboxes = Inbox.alphabetical.to_a
+      @inbox = @inboxes.find { |inbox| inbox.id.to_s == params[:inbox] }
+      @list_params = { filter: @filter, q: @query.presence, tag: @tag, inbox: @inbox&.id }.compact
+      tickets = Ticket.for_filter(@filter, Current.user).tagged(@tag).search(@query)
+      tickets = tickets.where(inbox: @inbox) if @inbox
+      tickets = @filter == "all" ? tickets.recent_first : tickets.longest_waiting_first
+      @tickets = tickets.includes(:customer, :assignee, :inbox, :tags, :latest_message)
+      @tags = Tag.in_use.alphabetical
+    end
+
+    # Keeps the list pane's filter and search when coming back to the ticket.
+    def list_params
+      params.permit(:filter, :q, :tag, :inbox).to_h
+    end
+
     def set_ticket
       @ticket = Ticket.find(params[:id])
     end
@@ -51,11 +63,7 @@ class TicketsController < ApplicationController
 
     # When an agent closes a ticket, ask the customer how it went.
     def request_rating
-      return unless Rails.configuration.x.satisfaction_surveys
-      return unless @ticket.saved_change_to_status? && @ticket.closed?
-
-      @ticket.update!(rating: nil, rating_comment: nil, rated_at: nil)
-      TicketMailer.rating_request(@ticket).deliver_later
+      @ticket.request_rating! if @ticket.saved_change_to_status?
     end
 
     def ticket_params

@@ -21,6 +21,7 @@ class AgentRepliesTest < ApplicationSystemTestCase
     sign_in_as users(:one)
 
     click_on "Can't log in"
+    click_on "Internal note"
     fill_in "Reply", with: "Asked billing to check the account"
     click_on "Add internal note"
 
@@ -38,11 +39,32 @@ class AgentRepliesTest < ApplicationSystemTestCase
     assert_select "Assignee", selected: "Alex Agent"
   end
 
+  test "changing a ticket's status saves straight away" do
+    sign_in_as users(:one)
+
+    click_on "Can't log in"
+    select "Pending", from: "Status"
+
+    assert_text "Ticket updated."
+    assert_equal "pending", tickets(:login).reload.status
+  end
+
+  test "ctrl+enter sends the reply" do
+    sign_in_as users(:one)
+
+    click_on "Can't log in"
+    fill_in "Reply", with: "Sent from the keyboard"
+    find_field("Reply").send_keys [ :control, :enter ]
+
+    assert_text "Reply sent."
+    assert_selector ".message.agent", text: "Sent from the keyboard"
+  end
+
   test "an agent searches the inbox" do
     sign_in_as users(:one)
 
-    fill_in "q", with: "invoice"
-    click_on "Search"
+    fill_in "Search tickets", with: "invoice"
+    find_field("Search tickets").send_keys :enter
 
     assert_link "Invoice question"
     assert_no_link "Can't log in"

@@ -1,80 +1,29 @@
+<% content_for :workspace, "true" %>
 <% content_for :title, "Tickets" %>
 
 <%= turbo_stream_from :tickets %>
 
-<h1>Tickets</h1>
-<% if @satisfaction %>
-  <p class="meta satisfaction">Customer satisfaction, last 30 days: <strong><%= @satisfaction %>%</strong> good</p>
-<% end %>
+<div class="workspace">
+  <%= render "list" %>
 
-<% if @saved_views.any? %>
-  <nav class="saved-views" aria-label="Saved views">
-    <strong>Your views:</strong>
-    <% @saved_views.each do |view| %>
-      <span class="saved-view">
-        <%= link_to view.name, tickets_path(view.params) %>
-        <%= button_to "×", saved_view_path(view), method: :delete, class: "link", title: "Delete view", form: { data: { turbo_confirm: "Delete the view \"#{view.name}\"?" } } %>
-      </span>
-    <% end %>
-  </nav>
-<% end %>
-
-<%= form_with url: tickets_path, method: :get, class: "search" do |f| %>
-  <%= f.hidden_field :filter, value: @filter %>
-  <% if @inboxes.size > 1 %>
-    <%= f.select :inbox, @inboxes.map { |inbox| [ inbox.name, inbox.id ] }, { include_blank: "All inboxes", selected: @inbox&.id }, aria: { label: "Inbox" } %>
-  <% end %>
-  <%= f.select :tag, @tags.map(&:name), { include_blank: "Any tag", selected: @tag }, aria: { label: "Tag" } %>
-  <%= f.search_field :q, value: @query, placeholder: "Search subjects, messages and customers", aria: { label: "Search tickets" } %>
-  <%= f.submit "Search", name: nil %>
-<% end %>
-
-<nav class="filters">
-  <% TicketsController::FILTERS.each do |filter| %>
-    <%= link_to tickets_path(filter: filter, q: @query.presence, tag: @tag, inbox: @inbox&.id), class: ("active" if filter == @filter) do %>
-      <%= filter.humanize %> <span class="count"><%= @counts[filter] %></span>
-    <% end %>
-  <% end %>
-</nav>
-
-<% if @tickets.any? %>
-  <table class="tickets">
-    <thead>
-      <tr><th>#</th><th>Subject</th><th>Customer</th><th>Status</th><th>Assignee</th><th>Updated</th></tr>
-    </thead>
-    <tbody>
-      <% @tickets.each do |ticket| %>
-        <tr id="<%= dom_id(ticket) %>">
-          <td><%= ticket.id %></td>
-          <td>
-            <%= link_to ticket.subject, ticket %>
-            <% if @inboxes.size > 1 %><span class="inbox-name"><%= ticket.inbox.name %></span><% end %>
-            <% ticket.tags.each do |tag| %>
-              <%= link_to tag.name, tickets_path(filter: @filter, tag: tag.name), class: "tag" %>
-            <% end %>
-          </td>
-          <td><%= ticket.customer.display_name %></td>
-          <td><span class="status <%= ticket.status %>"><%= ticket.status %></span></td>
-          <td><%= ticket.assignee&.display_name || "Unassigned" %></td>
-          <td><%= time_ago_in_words(ticket.updated_at) %> ago</td>
-        </tr>
-      <% end %>
-    </tbody>
-  </table>
-<% else %>
-  <% if @query.present? || @tag %>
-    <p class="empty">No tickets match these filters.</p>
-  <% else %>
-    <p class="empty"><%= t(".empty.#{@filter}") %></p>
-  <% end %>
-<% end %>
-
-<% if @query.present? || @tag %>
-  <%= form_with model: SavedView.new, class: "save-view" do |f| %>
-    <%= f.hidden_field :filter, value: @filter %>
-    <%= f.hidden_field :tag, value: @tag %>
-    <%= f.hidden_field :query, value: @query %>
-    <%= f.text_field :name, placeholder: "Name this view", required: true, aria: { label: "View name" } %>
-    <%= f.submit "Save view" %>
-  <% end %>
-<% end %>
+  <section class="detail-pane detail-empty" aria-label="Overview">
+    <div class="overview">
+      <h2>Pick a ticket to start</h2>
+      <p class="muted">Tickets waiting longest are at the top. Press <kbd>⌘K</kbd> to search.</p>
+      <div class="stats">
+        <div class="stat">
+          <span class="stat-value"><%= ticket_counts["unassigned"] %></span>
+          <span class="stat-label">Unassigned</span>
+        </div>
+        <div class="stat">
+          <span class="stat-value"><%= ticket_counts["mine"] %></span>
+          <span class="stat-label">Assigned to you</span>
+        </div>
+        <div class="stat satisfaction">
+          <span class="stat-value"><strong><%= @satisfaction ? "#{@satisfaction}%" : "–" %></strong></span>
+          <span class="stat-label">Rated good, last 30 days</span>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>

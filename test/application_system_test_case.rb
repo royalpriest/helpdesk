@@ -14,6 +14,6 @@ class ApplicationSystemTestCase < ActionDispatch::SystemTestCase
     fill_in "email_address", with: user.email_address
     fill_in "password", with: password
     click_on "Sign in"
-    assert_selector "h1", text: "Tickets"
+    assert_selector ".list-pane h1", text: "Open"
   end
 end

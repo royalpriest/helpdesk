@@ -9,6 +9,7 @@ class Ticket < ApplicationRecord
   belongs_to :inbox, default: -> { Inbox.default }
   belongs_to :assignee, class_name: "User", optional: true
   has_many :messages, -> { order(:created_at) }, dependent: :destroy, inverse_of: :ticket
+  has_one :latest_message, -> { where(internal: false).order(created_at: :desc) }, class_name: "Message"
   has_many :taggings, dependent: :destroy
   has_many :tags, -> { order(:name) }, through: :taggings
 
@@ -29,6 +30,7 @@ class Ticket < ApplicationRecord
   scope :assigned_to, ->(user) { where(assignee: user) }
   scope :recent_first, -> { order(updated_at: :desc) }
   scope :not_closed, -> { where.not(status: "closed") }
+  scope :longest_waiting_first, -> { order(Arel.sql("waiting_since IS NULL, waiting_since ASC, updated_at DESC")) }
   scope :pending_before, ->(time) { pending.where(pending_since: ...time) }
 
   scope :tagged, ->(name) { name.blank? ? all : where(id: Tagging.joins(:tag).where(tags: { name: name.to_s.downcase }).select(:ticket_id)) }
@@ -66,6 +68,33 @@ class Ticket < ApplicationRecord
     end
   end
 
+  # How long the customer has been waiting on the team, or nil if they aren't.
+  def waiting_for
+    Time.current - waiting_since if open? && waiting_since
+  end
+
+  # "calm", "soon" or "late", for colouring the waiting time in the inbox.
+  def waiting_level
+    seconds = waiting_for
+    if seconds.nil? || seconds < 1.hour then "calm"
+    elsif seconds < 8.hours then "soon"
+    else "late"
+    end
+  end
+
+  # Closes the ticket and, if surveys are on, asks the customer how it went.
+  def close_and_request_rating!
+    update!(status: "closed")
+    request_rating!
+  end
+
+  def request_rating!
+    return unless Rails.configuration.x.satisfaction_surveys && closed?
+
+    update!(rating: nil, rating_comment: nil, rated_at: nil)
+    TicketMailer.rating_request(self).deliver_later
+  end
+
   # The tag that ties an email thread back to this ticket, e.g. "[#42]".
   def reference
     "[##{id}]"
@@ -80,7 +109,9 @@ class Ticket < ApplicationRecord
   def add_customer_message!(body:, email_message_id: nil, attachments: [])
     transaction do
       messages.create!(body: body, email_message_id: email_message_id, attachments: attachments)
-      update!(status: "open") unless open?
+      self.status = "open"
+      self.waiting_since ||= Time.current
+      save!
       touch
     end
   end
@@ -96,7 +127,9 @@ class Ticket < ApplicationRecord
   # Records an agent's reply and emails it to the customer.
   def add_agent_reply!(user:, body:)
     message = transaction do
-      update!(status: "pending") if open?
+      self.status = "pending" if open?
+      self.waiting_since = nil
+      save!
       touch
       messages.create!(user: user, body: body)
     end
@@ -107,5 +140,6 @@ class Ticket < ApplicationRecord
   private
     def track_pending_since
       self.pending_since = pending? ? Time.current : nil
+      self.waiting_since = nil unless open?
     end
 end

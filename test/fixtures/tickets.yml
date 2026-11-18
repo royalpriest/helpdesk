@@ -4,6 +4,7 @@ login:
   subject: Can't log in
   status: open
   portal_token: casey-login-token
+  waiting_since: <%= 3.hours.ago.to_fs(:db) %>
 
 invoice:
   customer: casey

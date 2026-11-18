@@ -2,13 +2,16 @@
 
 <%= turbo_stream_from @ticket %>
 
-<h1><%= @ticket.subject %></h1>
-<p class="meta">Ticket <%= @ticket.reference %> · <span class="status <%= @ticket.status %>"><%= @ticket.status %></span></p>
+<header class="portal-header">
+  <div class="brand"><span class="brand-mark">H</span> <%= @ticket.inbox.name %></div>
+  <h1><%= @ticket.subject %></h1>
+  <p class="meta">Ticket <%= @ticket.reference %> · <span class="status <%= @ticket.status %>"><%= @ticket.status.humanize %></span></p>
+</header>
 
 <% if @ticket.awaiting_rating? %>
   <p class="rating-prompt">This ticket is closed. <%= link_to "Tell us how we did", new_portal_ticket_rating_path(@ticket.portal_token) %>.</p>
 <% elsif @ticket.rated_at %>
-  <p class="meta">You rated this <%= @ticket.rating == "good" ? "👍 good" : "👎 not so good" %>. Thanks!</p>
+  <p class="meta">You rated this <%= @ticket.rating == "good" ? "good" : "not so good" %>. Thanks!</p>
 <% end %>
 
 <section class="conversation">

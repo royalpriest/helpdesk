@@ -9,6 +9,10 @@ class MessagesController < ApplicationController
     elsif params[:note]
       ticket.add_internal_note!(user: Current.user, body: body)
       redirect_to ticket, notice: "Note added."
+    elsif params[:close]
+      ticket.add_agent_reply!(user: Current.user, body: body)
+      ticket.close_and_request_rating!
+      redirect_to ticket, notice: "Reply sent and ticket closed."
     else
       ticket.add_agent_reply!(user: Current.user, body: body)
       redirect_to ticket, notice: "Reply sent."

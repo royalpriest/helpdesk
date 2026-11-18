@@ -1,0 +1,75 @@
+<section class="list-pane" aria-label="Tickets">
+  <header class="list-header">
+    <div class="list-title">
+      <h1><%= @inbox ? @inbox.name : view_label(@filter) %></h1>
+      <span class="list-sort"><%= @filter == "all" ? "Newest first" : "Longest waiting first" %></span>
+    </div>
+
+    <%= form_with url: tickets_path, method: :get, class: "list-filters search", data: { controller: "autosubmit" } do |f| %>
+      <%= f.hidden_field :filter, value: @filter %>
+      <%= f.hidden_field :q, value: @query if @query.present? %>
+      <% if @inboxes.size > 1 %>
+        <%= f.select :inbox, @inboxes.map { |inbox| [ inbox.name, inbox.id ] }, { include_blank: "All inboxes", selected: @inbox&.id }, aria: { label: "Inbox" }, data: { action: "change->autosubmit#submit" } %>
+      <% end %>
+      <%= f.select :tag, @tags.map(&:name), { include_blank: "Any tag", selected: @tag }, aria: { label: "Tag" }, data: { action: "change->autosubmit#submit" } %>
+      <noscript><%= f.submit "Filter", name: nil, class: "btn btn-secondary btn-sm" %></noscript>
+    <% end %>
+
+    <% if @query.present? || @tag %>
+      <div class="list-query">
+        <span>
+          <% if @query.present? %>Results for “<%= @query %>”<% end %>
+          <% if @tag %><%= " · " if @query.present? %>Tagged <strong><%= @tag %></strong><% end %>
+        </span>
+        <%= link_to "Clear", tickets_path(filter: @filter, inbox: @inbox&.id) %>
+      </div>
+    <% end %>
+  </header>
+
+  <% if @tickets.any? %>
+    <ul class="ticket-list">
+      <% @tickets.each do |ticket| %>
+        <li id="<%= dom_id(ticket) %>">
+          <%= link_to ticket_path(ticket, @list_params), class: [ "ticket-item", ("current" if ticket == @ticket) ], aria: { current: ("page" if ticket == @ticket) } do %>
+            <%= avatar ticket.customer.display_name %>
+            <span class="ticket-item-body">
+              <span class="ticket-item-top">
+                <span class="ticket-item-customer"><%= ticket.customer.display_name %></span>
+                <time datetime="<%= ticket.updated_at.iso8601 %>"><%= short_time(ticket.updated_at) %></time>
+              </span>
+              <span class="ticket-item-subject"><%= ticket.subject %></span>
+              <% if (latest = ticket.latest_message) %>
+                <span class="ticket-item-preview"><%= "You: " if latest.from_agent? && latest.user == Current.user %><%= latest.body.squish.truncate(120) %></span>
+              <% end %>
+              <span class="ticket-item-meta">
+                <%= waiting_badge(ticket) %>
+                <% if @inboxes.size > 1 %><span class="inbox-name"><%= ticket.inbox.name %></span><% end %>
+                <% ticket.tags.each do |tag| %><span class="tag"><%= tag.name %></span><% end %>
+                <span class="ticket-item-assignee"><%= ticket.assignee ? ticket.assignee.display_name : "Unassigned" %></span>
+              </span>
+            </span>
+          <% end %>
+        </li>
+      <% end %>
+    </ul>
+  <% else %>
+    <div class="empty-state">
+      <%= icon :inbox, size: 28 %>
+      <% if @query.present? || @tag %>
+        <p class="empty">No tickets match these filters.</p>
+      <% else %>
+        <p class="empty"><%= t("tickets.index.empty.#{@filter}") %></p>
+      <% end %>
+    </div>
+  <% end %>
+
+  <% if (@query.present? || @tag) && @ticket.nil? %>
+    <%= form_with model: SavedView.new, class: "save-view" do |f| %>
+      <%= f.hidden_field :filter, value: @filter %>
+      <%= f.hidden_field :tag, value: @tag %>
+      <%= f.hidden_field :query, value: @query %>
+      <%= f.text_field :name, placeholder: "Name this view", required: true, aria: { label: "View name" } %>
+      <%= f.submit "Save view", class: "btn btn-secondary" %>
+    <% end %>
+  <% end %>
+</section>
