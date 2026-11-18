@@ -1,7 +1,23 @@
 <% content_for :title, "#{@ticket.reference} #{@ticket.subject}" %>
 
+<%= turbo_stream_from @ticket %>
+
 <h1><%= @ticket.reference %> <%= @ticket.subject %></h1>
 <p class="meta">From <%= @ticket.customer.display_name %> &lt;<%= @ticket.customer.email_address %>&gt;</p>
+
+<% if @other_tickets.any? %>
+  <aside class="other-tickets">
+    <h2>Other tickets from <%= @ticket.customer.display_name %></h2>
+    <ul>
+      <% @other_tickets.each do |other| %>
+        <li id="<%= dom_id(other, :other) %>">
+          <%= link_to "#{other.reference} #{other.subject}", other %>
+          <span class="status <%= other.status %>"><%= other.status %></span>
+        </li>
+      <% end %>
+    </ul>
+  </aside>
+<% end %>
 
 <%= form_with model: @ticket, class: "ticket-controls" do |f| %>
   <%= f.label :assignee_id, "Assignee" %>
@@ -16,7 +32,7 @@
 <% end %>
 
 <section class="conversation">
-  <%= render partial: "shared/message", collection: @ticket.messages.includes(:user), as: :message %>
+  <%= render partial: "shared/message", collection: @ticket.messages.includes(:user, attachments_attachments: :blob), as: :message %>
 </section>
 
 <%= form_with model: [ @ticket, @message ], class: "reply", data: { controller: "canned-reply" } do |f| %>
@@ -25,11 +41,14 @@
     <select id="canned_reply" data-action="canned-reply#insert">
       <option value="">Choose…</option>
       <% @canned_replies.each do |reply| %>
-        <option value="<%= reply.body %>"><%= reply.title %></option>
+        <option value="<%= reply.render_for(ticket: @ticket, agent: Current.user) %>"><%= reply.title %></option>
       <% end %>
     </select>
   <% end %>
   <%= f.label :body, "Reply" %>
   <%= f.text_area :body, rows: 8, data: { canned_reply_target: "body" } %>
-  <%= f.submit "Send reply" %>
+  <div class="reply-actions">
+    <%= f.submit "Send reply" %>
+    <%= f.submit "Add internal note", name: "note", class: "secondary" %>
+  </div>
 <% end %>

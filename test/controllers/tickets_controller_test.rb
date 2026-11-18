@@ -25,7 +25,7 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
   test "shows a ticket with its conversation" do
     get ticket_path(tickets(:invoice))
     assert_response :success
-    assert_select ".message", 2
+    assert_select ".message", 3
   end
 
   test "assigns a ticket" do
@@ -51,5 +51,77 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
     assert_no_difference "Message.count" do
       post ticket_messages_path(tickets(:login)), params: { message: { body: " " } }
     end
+  end
+
+  test "shows a count next to each filter" do
+    get tickets_path
+    assert_select ".filters a", text: /Mine\s+1/
+    assert_select ".filters a", text: /All\s+3/
+  end
+
+  test "shows a message for an empty filter" do
+    Ticket.update_all(assignee_id: users(:one).id)
+    get tickets_path(filter: "unassigned")
+    assert_select "p.empty", "Every open ticket has an owner."
+  end
+
+  test "adds an internal note without emailing the customer" do
+    ticket = tickets(:login)
+    assert_no_enqueued_emails do
+      post ticket_messages_path(ticket), params: { message: { body: "Checking with billing" }, note: "Add internal note" }
+    end
+
+    note = ticket.messages.last
+    assert note.internal?
+    assert ticket.reload.open?
+  end
+
+  test "agents see internal notes" do
+    get ticket_path(tickets(:invoice))
+    assert_select ".message.internal", 1
+  end
+
+  test "lists the customer's other tickets" do
+    get ticket_path(tickets(:login))
+    assert_select ".other-tickets ##{dom_id(tickets(:invoice), :other)}"
+    assert_select ".other-tickets ##{dom_id(tickets(:login), :other)}", count: 0
+  end
+
+  test "hides the other tickets section when there are none" do
+    get ticket_path(tickets(:closed))
+    assert_select ".other-tickets", count: 0
+  end
+
+  test "emails an agent when a teammate assigns them a ticket" do
+    assert_enqueued_emails 1 do
+      patch ticket_path(tickets(:login)), params: { ticket: { assignee_id: users(:two).id } }
+    end
+  end
+
+  test "doesn't email you when you assign a ticket to yourself" do
+    assert_no_enqueued_emails do
+      patch ticket_path(tickets(:login)), params: { ticket: { assignee_id: users(:one).id } }
+    end
+  end
+
+  test "doesn't email when only the status changes" do
+    assert_no_enqueued_emails do
+      patch ticket_path(tickets(:invoice)), params: { ticket: { status: "closed" } }
+    end
+  end
+
+  test "searches message bodies" do
+    get tickets_path(filter: "all", q: "invalid password")
+    assert_select "##{dom_id(tickets(:login))}"
+    assert_select "##{dom_id(tickets(:invoice))}", count: 0
+  end
+
+  test "searches customer email and keeps the filter" do
+    get tickets_path(filter: "open", q: "jordan@")
+    assert_select "table.tickets", count: 0
+    assert_select "p.empty", /No tickets match/
+
+    get tickets_path(filter: "all", q: "jordan@")
+    assert_select "##{dom_id(tickets(:closed))}"
   end
 end

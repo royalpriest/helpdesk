@@ -1,10 +1,20 @@
 <% content_for :title, "Tickets" %>
 
+<%= turbo_stream_from :tickets %>
+
 <h1>Tickets</h1>
+
+<%= form_with url: tickets_path, method: :get, class: "search" do |f| %>
+  <%= f.hidden_field :filter, value: @filter %>
+  <%= f.search_field :q, value: @query, placeholder: "Search subjects, messages and customers", aria: { label: "Search tickets" } %>
+  <%= f.submit "Search", name: nil %>
+<% end %>
 
 <nav class="filters">
   <% TicketsController::FILTERS.each do |filter| %>
-    <%= link_to filter.humanize, tickets_path(filter: filter), class: ("active" if filter == @filter) %>
+    <%= link_to tickets_path(filter: filter, q: @query.presence), class: ("active" if filter == @filter) do %>
+      <%= filter.humanize %> <span class="count"><%= @counts[filter] %></span>
+    <% end %>
   <% end %>
 </nav>
 
@@ -27,5 +37,9 @@
     </tbody>
   </table>
 <% else %>
-  <p class="empty">No tickets here.</p>
+  <% if @query.present? %>
+    <p class="empty">No tickets match "<%= @query %>".</p>
+  <% else %>
+    <p class="empty"><%= t(".empty.#{@filter}") %></p>
+  <% end %>
 <% end %>
