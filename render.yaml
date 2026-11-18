@@ -1,0 +1,14 @@
+# Render Blueprint for the free public demo. See docs/deploy.md ("Free demo on Render").
+# The free plan has no persistent disk, so the database starts fresh with demo data on
+# every restart. For a real helpdesk, use a paid plan with a disk or follow the deploy guide.
+services:
+  - type: web
+    name: helpdesk-demo
+    runtime: docker
+    plan: free
+    healthCheckPath: /up
+    envVars:
+      - key: DEMO_MODE
+        value: "true"
+      - key: SECRET_KEY_BASE
+        generateValue: true

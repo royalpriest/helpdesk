@@ -30,4 +30,21 @@ class SessionsControllerTest < ActionDispatch::IntegrationTest
     assert_redirected_to new_session_path
     assert_empty cookies[:session_id]
   end
+
+  test "the public demo shows the demo sign in" do
+    with_demo_mode do
+      get new_session_path
+      assert_select ".demo-hint", /agent@example.com/
+    end
+    get new_session_path
+    assert_select ".demo-hint", count: 0
+  end
+
+  private
+    def with_demo_mode
+      Rails.configuration.x.demo_mode = true
+      yield
+    ensure
+      Rails.configuration.x.demo_mode = false
+    end
 end
