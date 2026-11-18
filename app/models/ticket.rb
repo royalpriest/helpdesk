@@ -15,6 +15,17 @@ class Ticket < ApplicationRecord
   scope :unassigned, -> { where(assignee_id: nil) }
   scope :assigned_to, ->(user) { where(assignee: user) }
   scope :recent_first, -> { order(updated_at: :desc) }
+  scope :not_closed, -> { where.not(status: "closed") }
+
+  # The inbox filters: "mine", "unassigned", "open" or "all".
+  def self.for_filter(filter, user)
+    case filter
+    when "mine" then assigned_to(user).not_closed
+    when "unassigned" then unassigned.not_closed
+    when "open" then not_closed
+    else all
+    end
+  end
 
   # The tag that ties an email thread back to this ticket, e.g. "[#42]".
   def reference

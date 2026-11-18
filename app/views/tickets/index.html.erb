@@ -4,7 +4,9 @@
 
 <nav class="filters">
   <% TicketsController::FILTERS.each do |filter| %>
-    <%= link_to filter.humanize, tickets_path(filter: filter), class: ("active" if filter == @filter) %>
+    <%= link_to tickets_path(filter: filter), class: ("active" if filter == @filter) do %>
+      <%= filter.humanize %> <span class="count"><%= @counts[filter] %></span>
+    <% end %>
   <% end %>
 </nav>
 
@@ -27,5 +29,5 @@
     </tbody>
   </table>
 <% else %>
-  <p class="empty">No tickets here.</p>
+  <p class="empty"><%= t(".empty.#{@filter}") %></p>
 <% end %>
