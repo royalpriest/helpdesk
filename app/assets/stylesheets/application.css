@@ -63,6 +63,7 @@ input[type=submit].secondary { background: #fff; color: var(--accent); border: 1
 .other-tickets ul { margin: 0; padding-left: 1.25rem; }
 .search { display: flex; gap: .5rem; margin-bottom: 1rem; }
 .search input[type=search] { flex: 1; padding: .5rem; border: 1px solid var(--line); border-radius: 6px; font: inherit; }
+td.actions form { display: inline; margin-right: .75rem; }
 .rating { padding: .5rem .75rem; border-radius: 6px; background: #e6f4ea; }
 .rating.bad { background: #fde8e7; }
 .rating-prompt { padding: .5rem .75rem; border-radius: 6px; background: #eef4ff; }

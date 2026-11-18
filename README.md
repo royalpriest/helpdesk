@@ -48,8 +48,9 @@ Agent replies are delivered by Active Job. In development you can see them in th
 | `ACTION_MAILBOX_INGRESS` | How inbound mail reaches the app: `relay`, `postmark`, `sendgrid`, `mailgun`, `mandrill` (production) | `relay` |
 | `AUTO_CLOSE_AFTER_DAYS` | Close tickets waiting on the customer after this many days (`0` turns it off) | `7` |
 | `SATISFACTION_SURVEYS` | Email customers a rating request when an agent closes their ticket (`false` turns it off) | `true` |
+| `FORCE_SSL`, `ASSUME_SSL` | Set to `false` to run without HTTPS, e.g. trying the Docker image locally (production) | `true` |
 
-To run it on your own server, follow the [deploy guide](docs/deploy.md).
+To run it on your own server, follow the [deploy guide](docs/deploy.md). It covers a plain server install and the Docker image.
 
 See the [Action Mailbox guide](https://guides.rubyonrails.org/action_mailbox_basics.html) for setting
 up your mail provider's ingress.
@@ -57,10 +58,10 @@ up your mail provider's ingress.
 Create your first agent from the console:
 
 ```ruby
-User.create!(name: "Your Name", email_address: "you@example.com", password: "a-long-password")
+User.create!(name: "Your Name", email_address: "you@example.com", password: "a-long-password", admin: true)
 ```
 
-After that, invite teammates from the **Agents** page. They get an email with a link to choose
+After that, invite teammates from the **Agents** page (only admins can see it). They get an email with a link to choose
 their password.
 
 ## How it fits together
