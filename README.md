@@ -32,6 +32,11 @@ bin/setup          # installs gems, creates the database, loads demo data, start
 
 Open http://localhost:3000 and sign in as `agent@example.com` / `password`.
 
+### Try it in your browser
+
+No Ruby needed: on GitHub, click **Code → Codespaces → Create codespace on main**. It installs
+everything, loads the demo data and opens the app. Sign in as `agent@example.com` / `password`.
+
 ### Try the inbox locally
 
 Rails ships a page for sending fake inbound email. With the server running, open

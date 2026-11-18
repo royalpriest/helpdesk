@@ -1,0 +1,15 @@
+{
+  "name": "Helpdesk",
+  "image": "mcr.microsoft.com/devcontainers/ruby:3.3",
+  "forwardPorts": [
+    3000
+  ],
+  "portsAttributes": {
+    "3000": {
+      "label": "Helpdesk",
+      "onAutoForward": "openBrowser"
+    }
+  },
+  "postCreateCommand": "bin/setup --skip-server",
+  "postAttachCommand": "bin/dev"
+}
