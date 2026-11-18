@@ -9,5 +9,6 @@ class TicketMailerTest < ActionMailer::TestCase
     assert_equal "Re: #{message.ticket.reference} Invoice question", email.subject
     assert_match "portal/tickets/casey-invoice-token", email.text_part.body.to_s
     assert_match "ticket-#{message.ticket.id}-message-#{message.id}@", email.message_id
+    assert_equal "All", email["X-Auto-Response-Suppress"].value
   end
 end
