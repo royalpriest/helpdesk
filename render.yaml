@@ -12,3 +12,9 @@ services:
         value: "true"
       - key: SECRET_KEY_BASE
         generateValue: true
+      # The free plan has 512 MB of memory. Run one Puma process with Solid Queue
+      # as threads inside it, instead of the five processes the defaults start.
+      - key: WEB_CONCURRENCY
+        value: "0"
+      - key: SOLID_QUEUE_MODE
+        value: async
