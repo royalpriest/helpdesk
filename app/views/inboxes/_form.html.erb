@@ -1,0 +1,11 @@
+<%= form_with model: inbox do |f| %>
+  <% if inbox.errors.any? %>
+    <div class="flash alert"><%= inbox.errors.full_messages.to_sentence %></div>
+  <% end %>
+  <%= f.label :name %>
+  <%= f.text_field :name, placeholder: "Billing", required: true %>
+  <%= f.label :email_address %>
+  <%= f.email_field :email_address, placeholder: "billing@example.com", required: true %>
+  <p class="meta">Make sure your mail provider forwards this address to the helpdesk too (see docs/deploy.md).</p>
+  <%= f.submit "Save" %>
+<% end %>

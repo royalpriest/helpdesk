@@ -127,6 +127,11 @@ In Postmark:
 
 Send a test email to your support address. It should appear as a ticket within a few seconds.
 
+**More than one address?** Add each one (for example `billing@example.com`) on the **Inboxes** page,
+forward it to the same Postmark inbound address, and verify it as a sender signature. The helpdesk
+works out which inbox an email belongs to from its `To`, `Cc`, `Delivered-To` or `X-Original-To`
+address.
+
 ## Run with Docker instead
 
 If you'd rather not install Ruby on the server, use the Docker image. It runs Puma with Solid Queue

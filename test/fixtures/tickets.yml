@@ -1,11 +1,13 @@
 login:
   customer: casey
+  inbox: support
   subject: Can't log in
   status: open
   portal_token: casey-login-token
 
 invoice:
   customer: casey
+  inbox: billing
   assignee: one
   subject: Invoice question
   status: pending
@@ -14,6 +16,7 @@ invoice:
 
 closed:
   customer: jordan
+  inbox: support
   subject: Old question
   status: closed
   portal_token: jordan-closed-token
