@@ -2,6 +2,7 @@
 # (matched by the "[#42]" tag in the subject, or by the email's
 # References header) is added to that ticket; anything else opens a new one.
 class SupportMailbox < ApplicationMailbox
+  before_processing :skip_automatic_mail
   before_processing :skip_duplicates
 
   def process
@@ -10,6 +11,12 @@ class SupportMailbox < ApplicationMailbox
   end
 
   private
+    # Out-of-office replies, bounces and mailing-list mail never become tickets.
+    # Answering them could start an endless loop of automatic emails.
+    def skip_automatic_mail
+      bounced! if AutomaticEmail.automatic?(mail)
+    end
+
     def skip_duplicates
       bounced! if mail.message_id && Message.exists?(email_message_id: mail.message_id)
     end
