@@ -1,0 +1,29 @@
+name: Bug report
+description: Something isn't working the way it should
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: What did you do, what did you expect, and what happened instead?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Sign in as an agent
+        2. Open a ticket
+        3. ...
+  - type: input
+    id: version
+    attributes:
+      label: Version
+      description: Release number or commit, and whether you run it with Docker or from source
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logs or screenshots
+      description: Anything from log/production.log or the browser console that looks related. Remove email addresses and other private data first.
