@@ -42,8 +42,11 @@ Agent replies are delivered by Active Job. In development you can see them in th
 | --- | --- | --- |
 | `SUPPORT_EMAIL` | The address customers write to and replies come from | `support@example.com` |
 | `APP_HOST` | Host used in links inside emails (production) | `example.com` |
+| `SMTP_ADDRESS`, `SMTP_PORT`, `SMTP_USERNAME`, `SMTP_PASSWORD` | Outgoing mail server (production) | none |
 | `ACTION_MAILBOX_INGRESS` | How inbound mail reaches the app: `relay`, `postmark`, `sendgrid`, `mailgun`, `mandrill` (production) | `relay` |
 | `AUTO_CLOSE_AFTER_DAYS` | Close tickets waiting on the customer after this many days (`0` turns it off) | `7` |
+
+To run it on your own server, follow the [deploy guide](docs/deploy.md).
 
 See the [Action Mailbox guide](https://guides.rubyonrails.org/action_mailbox_basics.html) for setting
 up your mail provider's ingress.
