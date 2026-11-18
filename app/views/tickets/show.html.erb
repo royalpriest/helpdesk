@@ -1,0 +1,35 @@
+<% content_for :title, "#{@ticket.reference} #{@ticket.subject}" %>
+
+<h1><%= @ticket.reference %> <%= @ticket.subject %></h1>
+<p class="meta">From <%= @ticket.customer.display_name %> &lt;<%= @ticket.customer.email_address %>&gt;</p>
+
+<%= form_with model: @ticket, class: "ticket-controls" do |f| %>
+  <%= f.label :assignee_id, "Assignee" %>
+  <%= f.collection_select :assignee_id, @agents, :id, :display_name, include_blank: "Unassigned" %>
+  <%= f.label :status %>
+  <%= f.select :status, Ticket::STATUSES %>
+  <%= f.submit "Update" %>
+<% end %>
+
+<% unless @ticket.assignee == Current.user %>
+  <%= button_to "Assign to me", ticket_path(@ticket), method: :patch, params: { ticket: { assignee_id: Current.user.id } }, class: "secondary" %>
+<% end %>
+
+<section class="conversation">
+  <%= render partial: "shared/message", collection: @ticket.messages.includes(:user), as: :message %>
+</section>
+
+<%= form_with model: [ @ticket, @message ], class: "reply", data: { controller: "canned-reply" } do |f| %>
+  <% if @canned_replies.any? %>
+    <label for="canned_reply">Insert canned reply</label>
+    <select id="canned_reply" data-action="canned-reply#insert">
+      <option value="">Choose…</option>
+      <% @canned_replies.each do |reply| %>
+        <option value="<%= reply.body %>"><%= reply.title %></option>
+      <% end %>
+    </select>
+  <% end %>
+  <%= f.label :body, "Reply" %>
+  <%= f.text_area :body, rows: 8, data: { canned_reply_target: "body" } %>
+  <%= f.submit "Send reply" %>
+<% end %>

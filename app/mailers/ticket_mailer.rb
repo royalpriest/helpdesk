@@ -1,0 +1,19 @@
+# Emails an agent's reply to the customer.
+class TicketMailer < ApplicationMailer
+  def reply(message)
+    @message = message
+    @ticket = message.ticket
+
+    headers["Message-ID"] = "<ticket-#{@ticket.id}-message-#{message.id}@#{mail_domain}>"
+    headers["References"] = "<ticket-#{@ticket.id}@#{mail_domain}>"
+
+    mail to: @ticket.customer.email_address,
+         reply_to: Rails.configuration.x.support_email,
+         subject: "Re: #{@ticket.reference} #{@ticket.subject}"
+  end
+
+  private
+    def mail_domain
+      Rails.configuration.x.support_email.split("@").last
+    end
+end

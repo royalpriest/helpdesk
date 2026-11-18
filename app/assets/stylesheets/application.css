@@ -1,0 +1,54 @@
+:root {
+  --ink: #1f2328;
+  --muted: #59636e;
+  --line: #d1d9e0;
+  --bg: #f6f8fa;
+  --accent: #b42318;
+  --agent: #eef4ff;
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  color: var(--ink);
+}
+
+body { margin: 0; background: var(--bg); }
+main { max-width: 960px; margin: 0 auto; padding: 1.5rem; }
+a { color: var(--accent); }
+h1 { font-size: 1.5rem; }
+.meta, .empty { color: var(--muted); }
+
+.topbar { display: flex; align-items: center; justify-content: space-between; padding: .75rem 1.5rem; background: #fff; border-bottom: 1px solid var(--line); }
+.topbar nav { display: flex; gap: 1rem; align-items: center; }
+.topbar form { display: inline; }
+.brand { font-weight: 700; text-decoration: none; color: var(--ink); }
+
+button.link, .link button { background: none; border: 0; color: var(--accent); cursor: pointer; padding: 0; font: inherit; }
+input[type=submit], .button, button.secondary { background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: .5rem 1rem; cursor: pointer; text-decoration: none; font: inherit; }
+button.secondary { background: #fff; color: var(--accent); border: 1px solid var(--accent); }
+
+label { display: block; margin: .75rem 0 .25rem; font-weight: 600; }
+input[type=text], input[type=email], input[type=password], textarea, select { width: 100%; box-sizing: border-box; padding: .5rem; border: 1px solid var(--line); border-radius: 6px; font: inherit; }
+.ticket-controls { display: flex; gap: .5rem; align-items: center; flex-wrap: wrap; margin-bottom: .5rem; }
+.ticket-controls label { margin: 0; }
+.ticket-controls select { width: auto; }
+
+.filters { display: flex; gap: 1rem; margin-bottom: 1rem; }
+.filters a.active { font-weight: 700; text-decoration: none; color: var(--ink); }
+
+table.tickets { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--line); }
+table.tickets th, table.tickets td { text-align: left; padding: .5rem .75rem; border-bottom: 1px solid var(--line); }
+
+.status { font-size: .8rem; padding: .1rem .5rem; border-radius: 999px; background: #e6f4ea; }
+.status.pending { background: #fff4d6; }
+.status.closed { background: #eaeef2; }
+
+.conversation { margin: 1.5rem 0; display: grid; gap: 1rem; }
+.message { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: .75rem 1rem; }
+.message.agent { background: var(--agent); }
+.message header { display: flex; justify-content: space-between; color: var(--muted); }
+
+.flash { padding: .5rem .75rem; border-radius: 6px; }
+.flash.notice { background: #e6f4ea; }
+.flash.alert { background: #fde8e7; }
+
+.canned-replies { list-style: none; padding: 0; display: grid; gap: .75rem; }
+.canned-replies li { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: .75rem 1rem; }
+.canned-replies form { display: inline; margin-left: .5rem; }

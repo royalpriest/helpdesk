@@ -1,0 +1,14 @@
+<% content_for :title, @ticket.subject %>
+
+<h1><%= @ticket.subject %></h1>
+<p class="meta">Ticket <%= @ticket.reference %> · <span class="status <%= @ticket.status %>"><%= @ticket.status %></span></p>
+
+<section class="conversation">
+  <%= render partial: "shared/message", collection: @messages, as: :message %>
+</section>
+
+<%= form_with url: portal_ticket_messages_path(@ticket.portal_token), scope: :message, class: "reply" do |f| %>
+  <%= f.label :body, "Add a reply" %>
+  <%= f.text_area :body, rows: 6 %>
+  <%= f.submit "Send" %>
+<% end %>

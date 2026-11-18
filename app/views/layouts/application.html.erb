@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= content_for(:title) || "Helpdesk" %></title>
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <%= csrf_meta_tags %>
+    <%= csp_meta_tag %>
+    <link rel="icon" href="/icon.svg" type="image/svg+xml">
+    <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
+    <%= javascript_importmap_tags %>
+  </head>
+
+  <body>
+    <% if authenticated? %>
+      <header class="topbar">
+        <%= link_to "Helpdesk", root_path, class: "brand" %>
+        <nav>
+          <%= link_to "Tickets", tickets_path %>
+          <%= link_to "Canned replies", canned_replies_path %>
+          <%= button_to "Sign out", session_path, method: :delete, class: "link" %>
+        </nav>
+      </header>
+    <% end %>
+    <main>
+      <%= render "shared/flash" %>
+      <%= yield %>
+    </main>
+  </body>
+</html>

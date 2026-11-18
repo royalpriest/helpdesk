@@ -1,0 +1,12 @@
+login_first:
+  ticket: login
+  body: I keep getting "invalid password".
+
+invoice_first:
+  ticket: invoice
+  body: Could you resend last month's invoice?
+
+invoice_reply:
+  ticket: invoice
+  user: one
+  body: Sure, it's attached.

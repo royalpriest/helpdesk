@@ -1,0 +1,7 @@
+<article class="message <%= message.from_agent? ? "agent" : "customer" %>" id="<%= dom_id(message) %>">
+  <header>
+    <strong><%= message.author_name %></strong>
+    <time datetime="<%= message.created_at.iso8601 %>"><%= l message.created_at, format: :short %></time>
+  </header>
+  <%= simple_format(message.body) %>
+</article>
