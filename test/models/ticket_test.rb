@@ -38,4 +38,10 @@ class TicketTest < ActiveSupport::TestCase
     assert_includes Ticket.unassigned, tickets(:login)
     assert_not_includes Ticket.unassigned, tickets(:invoice)
   end
+
+  test "search matches subjects without duplicates and escapes wildcards" do
+    assert_equal [ tickets(:invoice) ], Ticket.search("invoice").to_a
+    assert_empty Ticket.search("%")
+    assert_equal Ticket.count, Ticket.search("").count
+  end
 end
