@@ -351,6 +351,7 @@ td.actions form, td.actions a { display: inline; margin-left: 12px; }
 .auth-card { width: 100%; max-width: 400px; background: var(--surface); border: 1px solid var(--line); border-radius: 20px; box-shadow: var(--shadow-lg); padding: 32px; animation: rise .5s var(--ease) both; }
 .auth-card .brand { padding: 0; margin-bottom: 24px; color: var(--ink); }
 .auth-card h1 { font-size: 24px; margin-bottom: 8px; }
+.auth-card .demo-hint { margin: 16px 0 0; padding: 12px 14px; background: var(--accent-tint); color: var(--ink); border-radius: var(--radius-sm); font-size: 13px; line-height: 1.5; }
 .auth-card form { display: flex; flex-direction: column; margin: 8px 0 16px; }
 .auth-card form label { margin: 14px 0 6px; }
 .auth-card form input[type=submit] { margin-top: 20px; }

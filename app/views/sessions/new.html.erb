@@ -1,6 +1,10 @@
 <h1>Sign in</h1>
 <p class="muted">Welcome back. Sign in to answer your customers.</p>
 
+<% if Demo.enabled? %>
+  <p class="demo-hint">This is a public demo. Sign in as <strong>agent@example.com</strong> with the password <strong>password</strong>. Everything resets every night.</p>
+<% end %>
+
 <%= form_with url: session_path do |form| %>
   <%= form.label :email_address, "Email" %>
   <%= form.email_field :email_address, required: true, autofocus: true, autocomplete: "username", placeholder: "you@example.com", value: params[:email_address] %>

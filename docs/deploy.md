@@ -166,6 +166,39 @@ To try it on your own computer without HTTPS, add `-e FORCE_SSL=false -e ASSUME_
 the port with `-p 3000:3000` and open http://localhost:3000. You can also build the image yourself
 with `docker build -t helpdesk .`.
 
+## Free demo on Render
+
+`render.yaml` sets up a free public demo on [Render](https://render.com), handy for letting people try
+Helpdesk before they install it. It runs with `DEMO_MODE=true`, which:
+
+- loads the demo data, so anyone can sign in as `agent@example.com` / `password` (shown on the sign in page)
+- never sends email
+- wipes everything and loads the demo data again every night at 4am UTC
+
+Render's free plan has no persistent disk, so the database also starts fresh on every deploy or
+restart. **Don't use it for real tickets.** For that, use a paid instance with a disk, or one of the
+setups above, and leave `DEMO_MODE` unset.
+
+### Deploy it
+
+1. Click **Deploy to Render** in the README (or in Render, choose **New → Blueprint** and pick this
+   repository).
+2. Render builds the Docker image and gives you an address like `https://helpdesk-demo.onrender.com`.
+   The first build takes a few minutes.
+
+### Keep it awake
+
+Free Render services go to sleep after 15 minutes without visitors, and the next visitor waits
+about a minute for them to wake up. A free uptime monitor can visit the app every few minutes
+to keep it awake:
+
+1. Sign up at [UptimeRobot](https://uptimerobot.com) (the free plan is enough).
+2. Add a new **HTTP(s)** monitor with the URL `https://your-app.onrender.com/up`.
+3. Set the interval to **5 minutes** and save.
+
+`/up` is a lightweight health check that doesn't touch the database. One service running all
+month fits inside Render's free instance hours.
+
 ## Updating
 
 ```sh

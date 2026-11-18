@@ -1,7 +1,8 @@
 # Creates a demo agent, a customer and a couple of tickets so you can
 # click around right after `bin/setup`.
-# Demo data has a well-known password, so it's never loaded in production.
-if Rails.env.production?
+# Demo data has a well-known password, so it's never loaded in production
+# unless this is the public demo (DEMO_MODE=true).
+if Rails.env.production? && ENV["DEMO_MODE"] != "true"
   puts "Skipping demo data in production. Create your first agent with bin/rails console."
 else
   agent = User.find_or_create_by!(email_address: "agent@example.com") do |u|

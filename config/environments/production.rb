@@ -34,7 +34,8 @@ Rails.application.configure do
   config.force_ssl = ENV.fetch("FORCE_SSL", "true") == "true"
 
   # Skip http-to-https redirect for the default health check endpoint.
-  # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
+  # Let health checks and uptime monitors reach /up over plain HTTP.
+  config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }
 
   # Log to STDOUT with the current request id as a default log tag.
   config.log_tags = [ :request_id ]
@@ -61,7 +62,7 @@ Rails.application.configure do
   # config.action_mailer.raise_delivery_errors = false
 
   # Set host to be used by links generated in mailer templates.
-  config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST", "example.com") }
+  config.action_mailer.default_url_options = { host: ENV.fetch("APP_HOST") { ENV.fetch("RENDER_EXTERNAL_HOSTNAME", "example.com") } }
 
   # Outgoing mail. Set SMTP_ADDRESS (plus SMTP_USERNAME and SMTP_PASSWORD) to
   # send through your mail provider; see docs/deploy.md.
@@ -76,6 +77,9 @@ Rails.application.configure do
       enable_starttls_auto: true
     }
   end
+
+  # The public demo never sends email: its customers are made up and anyone can sign in.
+  config.action_mailer.perform_deliveries = false if ENV["DEMO_MODE"] == "true"
 
   # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
   # the I18n.default_locale when a translation cannot be found).
