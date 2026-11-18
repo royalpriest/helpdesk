@@ -8,6 +8,7 @@ Rails.application.routes.draw do
     resources :taggings, only: %i[create destroy]
   end
   resources :canned_replies, except: :show
+  resources :inboxes, except: :show
   resources :saved_views, only: %i[create destroy]
   resources :agents, only: %i[index new create destroy] do
     member do
