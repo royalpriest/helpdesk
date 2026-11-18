@@ -109,4 +109,19 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
       patch ticket_path(tickets(:invoice)), params: { ticket: { status: "closed" } }
     end
   end
+
+  test "searches message bodies" do
+    get tickets_path(filter: "all", q: "invalid password")
+    assert_select "##{dom_id(tickets(:login))}"
+    assert_select "##{dom_id(tickets(:invoice))}", count: 0
+  end
+
+  test "searches customer email and keeps the filter" do
+    get tickets_path(filter: "open", q: "jordan@")
+    assert_select "table.tickets", count: 0
+    assert_select "p.empty", /No tickets match/
+
+    get tickets_path(filter: "all", q: "jordan@")
+    assert_select "##{dom_id(tickets(:closed))}"
+  end
 end
