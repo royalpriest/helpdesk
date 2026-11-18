@@ -10,6 +10,7 @@ invoice:
   subject: Invoice question
   status: pending
   portal_token: casey-invoice-token
+  pending_since: <%= 2.days.ago.to_fs(:db) %>
 
 closed:
   customer: jordan
