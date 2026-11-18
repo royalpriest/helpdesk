@@ -124,4 +124,16 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
     get tickets_path(filter: "all", q: "jordan@")
     assert_select "##{dom_id(tickets(:closed))}"
   end
+
+  test "filters the inbox by tag" do
+    get tickets_path(filter: "all", tag: "billing")
+    assert_select "##{dom_id(tickets(:invoice))}"
+    assert_select "##{dom_id(tickets(:login))}", count: 0
+    assert_select "form.save-view"
+  end
+
+  test "shows tags on inbox rows" do
+    get tickets_path
+    assert_select "##{dom_id(tickets(:invoice))} a.tag", "billing"
+  end
 end
