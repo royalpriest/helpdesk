@@ -127,6 +127,40 @@ In Postmark:
 
 Send a test email to your support address. It should appear as a ticket within a few seconds.
 
+## Run with Docker instead
+
+If you'd rather not install Ruby on the server, use the Docker image. It runs Puma with Solid Queue
+inside it, and keeps the databases and attachments in a volume.
+
+```sh
+docker run -d --name helpdesk --restart unless-stopped \
+  -p 127.0.0.1:3000:3000 \
+  -v helpdesk-storage:/rails/storage \
+  -e SECRET_KEY_BASE=$(openssl rand -hex 64) \
+  -e APP_HOST=help.example.com \
+  -e SUPPORT_EMAIL=support@example.com \
+  -e SMTP_ADDRESS=smtp.postmarkapp.com \
+  -e SMTP_USERNAME=your-postmark-server-token \
+  -e SMTP_PASSWORD=your-postmark-server-token \
+  -e ACTION_MAILBOX_INGRESS=postmark \
+  -e RAILS_INBOUND_EMAIL_PASSWORD=choose-a-long-random-string \
+  ghcr.io/royalpriest/helpdesk:latest
+```
+
+Keep the same `SECRET_KEY_BASE` between restarts (put the variables in a file and use
+`--env-file`), or everyone gets signed out. Create the first agent with:
+
+```sh
+docker exec -it helpdesk bin/rails runner 'User.create!(name: "Your Name", email_address: "you@example.com", password: "a-long-password", admin: true)'
+```
+
+Then set up Caddy (step 5) and inbound email (step 6) as above. To update, pull the new image
+and recreate the container; migrations run automatically on start.
+
+To try it on your own computer without HTTPS, add `-e FORCE_SSL=false -e ASSUME_SSL=false`, publish
+the port with `-p 3000:3000` and open http://localhost:3000. You can also build the image yourself
+with `docker build -t helpdesk .`.
+
 ## Updating
 
 ```sh
