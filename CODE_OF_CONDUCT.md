@@ -9,6 +9,6 @@ are not okay anywhere in the project, including issues, pull requests and discus
 ## Reporting
 
 If someone's behaviour makes you uncomfortable, contact the maintainer privately at
-**CONTACT_EMAIL_HERE**. Reports are kept confidential. The maintainer may warn, temporarily
+**royalpriest011@gmail.com**. Reports are kept confidential. The maintainer may warn, temporarily
 ban or permanently ban anyone who breaks this code of conduct, following the Contributor
 Covenant's [enforcement guidelines](https://www.contributor-covenant.org/version/2/1/code_of_conduct/#enforcement-guidelines).
