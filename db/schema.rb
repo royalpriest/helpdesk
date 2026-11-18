@@ -76,6 +76,17 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_060013) do
     t.index ["user_id"], name: "index_messages_on_user_id"
   end
 
+  create_table "saved_views", force: :cascade do |t|
+    t.integer "user_id", null: false
+    t.string "name", null: false
+    t.string "filter", default: "open", null: false
+    t.string "tag"
+    t.string "query"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["user_id"], name: "index_saved_views_on_user_id"
+  end
+
   create_table "sessions", force: :cascade do |t|
     t.integer "user_id", null: false
     t.string "ip_address"
@@ -83,6 +94,23 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_060013) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["user_id"], name: "index_sessions_on_user_id"
+  end
+
+  create_table "taggings", force: :cascade do |t|
+    t.integer "ticket_id", null: false
+    t.integer "tag_id", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["tag_id"], name: "index_taggings_on_tag_id"
+    t.index ["ticket_id", "tag_id"], name: "index_taggings_on_ticket_id_and_tag_id", unique: true
+    t.index ["ticket_id"], name: "index_taggings_on_ticket_id"
+  end
+
+  create_table "tags", force: :cascade do |t|
+    t.string "name", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_tags_on_name", unique: true
   end
 
   create_table "tickets", force: :cascade do |t|
@@ -120,7 +148,10 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_060013) do
   add_foreign_key "active_storage_variant_records", "active_storage_blobs", column: "blob_id"
   add_foreign_key "messages", "tickets"
   add_foreign_key "messages", "users"
+  add_foreign_key "saved_views", "users"
   add_foreign_key "sessions", "users"
+  add_foreign_key "taggings", "tags"
+  add_foreign_key "taggings", "tickets"
   add_foreign_key "tickets", "customers"
   add_foreign_key "tickets", "users", column: "assignee_id"
 
