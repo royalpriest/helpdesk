@@ -124,4 +124,15 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
     get tickets_path(filter: "all", q: "jordan@")
     assert_select "##{dom_id(tickets(:closed))}"
   end
+
+  test "filters the inbox by inbox" do
+    get tickets_path(filter: "all", inbox: inboxes(:billing).id)
+    assert_select "##{dom_id(tickets(:invoice))}"
+    assert_select "##{dom_id(tickets(:login))}", count: 0
+  end
+
+  test "moves a ticket to another inbox" do
+    patch ticket_path(tickets(:login)), params: { ticket: { inbox_id: inboxes(:billing).id } }
+    assert_equal inboxes(:billing), tickets(:login).reload.inbox
+  end
 end

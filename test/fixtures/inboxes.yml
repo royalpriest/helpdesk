@@ -1,0 +1,7 @@
+support:
+  name: Support
+  email_address: support@example.com
+
+billing:
+  name: Billing
+  email_address: billing@example.com

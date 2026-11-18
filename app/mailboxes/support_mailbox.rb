@@ -6,7 +6,7 @@ class SupportMailbox < ApplicationMailbox
   before_processing :skip_duplicates
 
   def process
-    ticket = existing_ticket || customer.tickets.create!(subject: subject)
+    ticket = existing_ticket || customer.tickets.create!(subject: subject, inbox: inbox)
     ticket.add_customer_message!(body: body, email_message_id: mail.message_id, attachments: attachments)
   end
 
@@ -19,6 +19,15 @@ class SupportMailbox < ApplicationMailbox
 
     def skip_duplicates
       bounced! if mail.message_id && Message.exists?(email_message_id: mail.message_id)
+    end
+
+    # The inbox this email was sent to. Forwarding setups often keep the original
+    # address in Delivered-To or X-Original-To rather than To.
+    def inbox
+      forwarded_to = mail.header.fields
+        .select { |field| %w[delivered-to x-original-to].include?(field.name.downcase) }
+        .map(&:value)
+      Inbox.for_addresses([ *mail.to, *mail.cc, *forwarded_to ])
     end
 
     def customer

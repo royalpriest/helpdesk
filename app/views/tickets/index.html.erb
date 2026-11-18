@@ -6,13 +6,16 @@
 
 <%= form_with url: tickets_path, method: :get, class: "search" do |f| %>
   <%= f.hidden_field :filter, value: @filter %>
+  <% if @inboxes.size > 1 %>
+    <%= f.select :inbox, @inboxes.map { |inbox| [ inbox.name, inbox.id ] }, { include_blank: "All inboxes", selected: @inbox&.id }, aria: { label: "Inbox" } %>
+  <% end %>
   <%= f.search_field :q, value: @query, placeholder: "Search subjects, messages and customers", aria: { label: "Search tickets" } %>
   <%= f.submit "Search", name: nil %>
 <% end %>
 
 <nav class="filters">
   <% TicketsController::FILTERS.each do |filter| %>
-    <%= link_to tickets_path(filter: filter, q: @query.presence), class: ("active" if filter == @filter) do %>
+    <%= link_to tickets_path(filter: filter, q: @query.presence, inbox: @inbox&.id), class: ("active" if filter == @filter) do %>
       <%= filter.humanize %> <span class="count"><%= @counts[filter] %></span>
     <% end %>
   <% end %>
@@ -27,7 +30,10 @@
       <% @tickets.each do |ticket| %>
         <tr id="<%= dom_id(ticket) %>">
           <td><%= ticket.id %></td>
-          <td><%= link_to ticket.subject, ticket %></td>
+          <td>
+            <%= link_to ticket.subject, ticket %>
+            <% if @inboxes.size > 1 %><span class="inbox-name"><%= ticket.inbox.name %></span><% end %>
+          </td>
           <td><%= ticket.customer.display_name %></td>
           <td><span class="status <%= ticket.status %>"><%= ticket.status %></span></td>
           <td><%= ticket.assignee&.display_name || "Unassigned" %></td>

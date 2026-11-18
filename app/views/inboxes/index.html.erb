@@ -1,0 +1,24 @@
+<% content_for :title, "Inboxes" %>
+
+<h1>Inboxes</h1>
+<p class="meta">Email sent to any of these addresses becomes a ticket in that inbox, and replies go out from the same address. Mail that matches none of them goes to the inbox for <code><%= Rails.configuration.x.support_email %></code>.</p>
+<p><%= link_to "Add an inbox", new_inbox_path, class: "button" %></p>
+
+<table class="tickets">
+  <thead><tr><th>Name</th><th>Address</th><th>Tickets</th><th></th></tr></thead>
+  <tbody>
+    <% @inboxes.each do |inbox| %>
+      <tr id="<%= dom_id(inbox) %>">
+        <td><%= inbox.name %></td>
+        <td><%= inbox.email_address %></td>
+        <td><%= @ticket_counts.fetch(inbox.id, 0) %></td>
+        <td class="actions">
+          <%= link_to "Edit", edit_inbox_path(inbox) %>
+          <% if @ticket_counts.fetch(inbox.id, 0).zero? %>
+            <%= button_to "Remove", inbox_path(inbox), method: :delete, class: "link", form: { data: { turbo_confirm: "Remove #{inbox.name}?" } } %>
+          <% end %>
+        </td>
+      </tr>
+    <% end %>
+  </tbody>
+</table>
