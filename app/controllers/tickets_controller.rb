@@ -5,17 +5,21 @@ class TicketsController < ApplicationController
 
   def index
     @filter = FILTERS.include?(params[:filter]) ? params[:filter] : "open"
-    @tickets = filtered_tickets.includes(:customer, :assignee).recent_first
+    @query = params[:q].to_s.strip
+    @tickets = Ticket.for_filter(@filter, Current.user).search(@query).includes(:customer, :assignee).recent_first
+    @counts = FILTERS.index_with { |filter| Ticket.for_filter(filter, Current.user).count }
   end
 
   def show
     @message = @ticket.messages.new
     @canned_replies = CannedReply.alphabetical
-    @agents = User.order(:name, :email_address)
+    @agents = User.active.alphabetical
+    @other_tickets = @ticket.customer.tickets.where.not(id: @ticket.id).recent_first
   end
 
   def update
     if @ticket.update(ticket_params)
+      notify_new_assignee
       redirect_to @ticket, notice: "Ticket updated."
     else
       redirect_to @ticket, alert: @ticket.errors.full_messages.to_sentence
@@ -27,16 +31,15 @@ class TicketsController < ApplicationController
       @ticket = Ticket.find(params[:id])
     end
 
-    def ticket_params
-      params.expect(ticket: %i[assignee_id status])
+    # Lets an agent know when a teammate hands them a ticket.
+    def notify_new_assignee
+      return unless @ticket.saved_change_to_assignee_id?
+      return if @ticket.assignee.nil? || @ticket.assignee == Current.user
+
+      AgentMailer.assigned(@ticket, assigned_by: Current.user).deliver_later
     end
 
-    def filtered_tickets
-      case @filter
-      when "mine" then Ticket.assigned_to(Current.user).where.not(status: "closed")
-      when "unassigned" then Ticket.unassigned.where.not(status: "closed")
-      when "open" then Ticket.where.not(status: "closed")
-      else Ticket.all
-      end
+    def ticket_params
+      params.expect(ticket: %i[assignee_id status])
     end
 end

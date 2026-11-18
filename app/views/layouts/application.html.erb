@@ -8,6 +8,7 @@
     <link rel="icon" href="/icon.svg" type="image/svg+xml">
     <%= stylesheet_link_tag :app, "data-turbo-track": "reload" %>
     <%= javascript_importmap_tags %>
+    <%= turbo_refreshes_with method: :morph, scroll: :preserve %>
   </head>
 
   <body>
@@ -17,6 +18,7 @@
         <nav>
           <%= link_to "Tickets", tickets_path %>
           <%= link_to "Canned replies", canned_replies_path %>
+          <%= link_to "Agents", agents_path %>
           <%= button_to "Sign out", session_path, method: :delete, class: "link" %>
         </nav>
       </header>

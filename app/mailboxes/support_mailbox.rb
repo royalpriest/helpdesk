@@ -5,12 +5,8 @@ class SupportMailbox < ApplicationMailbox
   before_processing :skip_duplicates
 
   def process
-    if (ticket = existing_ticket)
-      ticket.add_customer_message!(body: body, email_message_id: mail.message_id)
-    else
-      ticket = customer.tickets.create!(subject: subject)
-      ticket.add_customer_message!(body: body, email_message_id: mail.message_id)
-    end
+    ticket = existing_ticket || customer.tickets.create!(subject: subject)
+    ticket.add_customer_message!(body: body, email_message_id: mail.message_id, attachments: attachments)
   end
 
   private
@@ -38,10 +34,20 @@ class SupportMailbox < ApplicationMailbox
       mail.subject.presence || "(no subject)"
     end
 
+    def attachments
+      mail.attachments.reject(&:inline?).map do |attachment|
+        {
+          io: StringIO.new(attachment.decoded),
+          filename: attachment.filename,
+          content_type: attachment.mime_type
+        }
+      end
+    end
+
     def body
       part = mail.multipart? ? (mail.text_part || mail.html_part) : mail
       text = part&.decoded.to_s
       text = ActionController::Base.helpers.strip_tags(text) if part&.mime_type == "text/html"
-      text.strip.presence || "(empty message)"
+      EmailReply.strip_quoted(text).presence || "(empty message)"
     end
 end
