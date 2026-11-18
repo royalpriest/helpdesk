@@ -3,8 +3,12 @@
 class Message < ApplicationRecord
   belongs_to :ticket, inverse_of: :messages
   belongs_to :user, optional: true
+  has_many_attached :attachments
 
   validates :body, presence: true
+
+  # Internal notes are for agents only: never emailed, never shown in the portal.
+  scope :visible_to_customer, -> { where(internal: false) }
 
   def from_agent?
     user_id.present?

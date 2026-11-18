@@ -1,0 +1,4 @@
+<%= @assigned_by.display_name %> assigned you a ticket from <%= @ticket.customer.display_name %>:
+
+<%= @ticket.reference %> <%= @ticket.subject %>
+<%= ticket_url(@ticket) %>
