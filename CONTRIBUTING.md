@@ -9,6 +9,7 @@ Thanks for helping out!
 
    ```sh
    bin/rails test
+   bin/rails test:system   # needs Chrome or Chromium installed
    bin/rubocop
    bin/brakeman --no-pager
    ```
