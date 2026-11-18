@@ -3,6 +3,8 @@
 An open source, self-hosted helpdesk built with Rails 8. Customers email your support address, the
 emails become tickets, and your team answers them from one shared inbox.
 
+**[Try the live demo](https://helpdesk-demo-zga1.onrender.com)** (sign in as `agent@example.com` / `password`; it resets every night and may take a minute to wake up).
+
 ![A ticket with a canned reply inserted](docs/ticket.png)
 
 ## Features
@@ -38,6 +40,11 @@ No Ruby needed: on GitHub, click **Code → Codespaces → Create codespace on m
 everything, loads the demo data and opens the app. Sign in as `agent@example.com` / `password`.
 
 ### Try the online demo
+
+The live demo runs at **https://helpdesk-demo-zga1.onrender.com**. Sign in as `agent@example.com` / `password`.
+It sends no email and resets every night.
+
+To run your own copy:
 
 [![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy?repo=https://github.com/royalpriest/helpdesk)
 
