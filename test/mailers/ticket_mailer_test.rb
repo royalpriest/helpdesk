@@ -11,4 +11,12 @@ class TicketMailerTest < ActionMailer::TestCase
     assert_match "ticket-#{message.ticket.id}-message-#{message.id}@", email.message_id
     assert_equal "All", email["X-Auto-Response-Suppress"].value
   end
+
+  test "reply is sent from the ticket's inbox" do
+    email = TicketMailer.reply(messages(:invoice_reply))
+
+    assert_equal [ "billing@example.com" ], email.from
+    assert_equal "Billing <billing@example.com>", email[:from].value
+    assert_equal [ "billing@example.com" ], email.reply_to
+  end
 end

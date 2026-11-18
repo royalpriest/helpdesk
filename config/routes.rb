@@ -7,6 +7,7 @@ Rails.application.routes.draw do
     resources :messages, only: :create
   end
   resources :canned_replies, except: :show
+  resources :inboxes, except: :show
   resources :agents, only: %i[index new create destroy] do
     member do
       patch :reactivate

@@ -49,10 +49,6 @@ class AgentsController < ApplicationController
   end
 
   private
-    def require_admin
-      redirect_to root_path, alert: "Only admins can manage agents." unless Current.user.admin?
-    end
-
     def set_agent
       @agent = User.find(params[:id])
     end

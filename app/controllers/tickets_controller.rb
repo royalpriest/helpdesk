@@ -6,7 +6,11 @@ class TicketsController < ApplicationController
   def index
     @filter = FILTERS.include?(params[:filter]) ? params[:filter] : "open"
     @query = params[:q].to_s.strip
-    @tickets = Ticket.for_filter(@filter, Current.user).search(@query).includes(:customer, :assignee).recent_first
+    @inboxes = Inbox.alphabetical.to_a
+    @inbox = @inboxes.find { |inbox| inbox.id.to_s == params[:inbox] }
+    tickets = Ticket.for_filter(@filter, Current.user).search(@query)
+    tickets = tickets.where(inbox: @inbox) if @inbox
+    @tickets = tickets.includes(:customer, :assignee, :inbox).recent_first
     @counts = FILTERS.index_with { |filter| Ticket.for_filter(filter, Current.user).count }
   end
 
@@ -14,6 +18,7 @@ class TicketsController < ApplicationController
     @message = @ticket.messages.new
     @canned_replies = CannedReply.alphabetical
     @agents = User.active.alphabetical
+    @inboxes = Inbox.alphabetical
     @other_tickets = @ticket.customer.tickets.where.not(id: @ticket.id).recent_first
   end
 
@@ -40,6 +45,6 @@ class TicketsController < ApplicationController
     end
 
     def ticket_params
-      params.expect(ticket: %i[assignee_id status])
+      params.expect(ticket: %i[assignee_id status inbox_id])
     end
 end
