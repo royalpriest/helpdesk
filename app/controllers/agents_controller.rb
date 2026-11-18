@@ -1,6 +1,7 @@
-# Lets agents invite, deactivate and reactivate their teammates.
+# Lets admins invite, deactivate and reactivate agents, and choose who else is an admin.
 class AgentsController < ApplicationController
-  before_action :set_agent, only: %i[update destroy]
+  before_action :require_admin
+  before_action :set_agent, only: %i[destroy reactivate make_admin remove_admin]
 
   def index
     @agents = User.alphabetical
@@ -18,12 +19,6 @@ class AgentsController < ApplicationController
     render :new, status: :unprocessable_entity
   end
 
-  # Reactivates a deactivated agent.
-  def update
-    @agent.reactivate!
-    redirect_to agents_path, notice: "#{@agent.display_name} can sign in again."
-  end
-
   # Deactivates rather than deletes, so their past replies keep their name.
   def destroy
     if @agent == Current.user
@@ -34,7 +29,30 @@ class AgentsController < ApplicationController
     end
   end
 
+  def reactivate
+    @agent.reactivate!
+    redirect_to agents_path, notice: "#{@agent.display_name} can sign in again."
+  end
+
+  def make_admin
+    @agent.update!(admin: true)
+    redirect_to agents_path, notice: "#{@agent.display_name} is now an admin."
+  end
+
+  def remove_admin
+    if @agent.last_admin?
+      redirect_to agents_path, alert: "There has to be at least one admin."
+    else
+      @agent.update!(admin: false)
+      redirect_to agents_path, notice: "#{@agent.display_name} is no longer an admin."
+    end
+  end
+
   private
+    def require_admin
+      redirect_to root_path, alert: "Only admins can manage agents." unless Current.user.admin?
+    end
+
     def set_agent
       @agent = User.find(params[:id])
     end

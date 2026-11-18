@@ -108,6 +108,7 @@ ActiveRecord::Schema[8.1].define(version: 2026_11_18_060009) do
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.datetime "deactivated_at"
+    t.boolean "admin", default: false, null: false
     t.index ["email_address"], name: "index_users_on_email_address", unique: true
   end
 
