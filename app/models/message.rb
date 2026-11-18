@@ -7,6 +7,8 @@ class Message < ApplicationRecord
 
   validates :body, presence: true
 
+  after_create_commit -> { ticket.reload.update_search_index }
+
   # Internal notes are for agents only: never emailed, never shown in the portal.
   scope :visible_to_customer, -> { where(internal: false) }
 
