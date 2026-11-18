@@ -7,6 +7,8 @@ class Customer < ApplicationRecord
 
   validates :email_address, presence: true, uniqueness: true
 
+  after_update_commit -> { tickets.includes(:messages).each(&:update_search_index) }, if: -> { saved_change_to_name? || saved_change_to_email_address? }
+
   def display_name
     name.presence || email_address
   end

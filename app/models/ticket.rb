@@ -1,5 +1,7 @@
 # A conversation with a customer.
 class Ticket < ApplicationRecord
+  include Searchable
+
   STATUSES = %w[open pending closed].freeze
   RATINGS = %w[good bad].freeze
 
@@ -25,18 +27,6 @@ class Ticket < ApplicationRecord
   scope :recent_first, -> { order(updated_at: :desc) }
   scope :not_closed, -> { where.not(status: "closed") }
   scope :pending_before, ->(time) { pending.where(pending_since: ...time) }
-
-  # Matches the subject, any message body, or the customer's email or name.
-  def self.search(query)
-    return all if query.blank?
-
-    pattern = "%#{sanitize_sql_like(query.strip)}%"
-    ids = left_joins(:messages).joins(:customer).where(
-      "tickets.subject LIKE :q OR messages.body LIKE :q OR customers.email_address LIKE :q OR customers.name LIKE :q",
-      q: pattern
-    ).select(:id)
-    where(id: ids)
-  end
 
   scope :rated_since, ->(time) { where(rated_at: time..) }
 
