@@ -5,6 +5,22 @@
 <h1><%= @ticket.reference %> <%= @ticket.subject %></h1>
 <p class="meta">From <%= @ticket.customer.display_name %> &lt;<%= @ticket.customer.email_address %>&gt; to <%= @ticket.inbox.name %> &lt;<%= @ticket.inbox.email_address %>&gt;</p>
 
+<section class="ticket-tags" id="tags">
+  <% @ticket.tags.each do |tag| %>
+    <span class="tag">
+      <%= link_to tag.name, tickets_path(filter: "all", tag: tag.name) %>
+      <%= button_to "×", ticket_tagging_path(@ticket, tag.name), method: :delete, class: "link", title: "Remove tag" %>
+    </span>
+  <% end %>
+  <%= form_with url: ticket_taggings_path(@ticket), scope: :tagging, class: "add-tag" do |f| %>
+    <%= f.text_field :name, placeholder: "Add a tag", list: "known-tags", aria: { label: "Add a tag" } %>
+    <datalist id="known-tags">
+      <% Tag.alphabetical.each do |tag| %><option value="<%= tag.name %>"></option><% end %>
+    </datalist>
+    <%= f.submit "Add", class: "secondary" %>
+  <% end %>
+</section>
+
 <% if @other_tickets.any? %>
   <aside class="other-tickets">
     <h2>Other tickets from <%= @ticket.customer.display_name %></h2>
