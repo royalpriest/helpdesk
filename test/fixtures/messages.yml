@@ -10,3 +10,9 @@ invoice_reply:
   ticket: invoice
   user: one
   body: Sure, it's attached.
+
+invoice_note:
+  ticket: invoice
+  user: two
+  body: Customer is on the annual plan.
+  internal: true

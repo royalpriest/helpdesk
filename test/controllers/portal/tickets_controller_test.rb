@@ -28,4 +28,10 @@ class Portal::TicketsControllerTest < ActionDispatch::IntegrationTest
     get portal_ticket_path("casey-invoice-token")
     assert_select ".attachments a", "invoice.pdf"
   end
+
+  test "customers never see internal notes" do
+    get portal_ticket_path("casey-invoice-token")
+    assert_select ".message.internal", 0
+    assert_no_match "annual plan", response.body
+  end
 end

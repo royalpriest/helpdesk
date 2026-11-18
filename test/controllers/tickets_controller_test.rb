@@ -25,7 +25,7 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
   test "shows a ticket with its conversation" do
     get ticket_path(tickets(:invoice))
     assert_response :success
-    assert_select ".message", 2
+    assert_select ".message", 3
   end
 
   test "assigns a ticket" do
@@ -63,5 +63,21 @@ class TicketsControllerTest < ActionDispatch::IntegrationTest
     Ticket.update_all(assignee_id: users(:one).id)
     get tickets_path(filter: "unassigned")
     assert_select "p.empty", "Every open ticket has an owner."
+  end
+
+  test "adds an internal note without emailing the customer" do
+    ticket = tickets(:login)
+    assert_no_enqueued_emails do
+      post ticket_messages_path(ticket), params: { message: { body: "Checking with billing" }, note: "Add internal note" }
+    end
+
+    note = ticket.messages.last
+    assert note.internal?
+    assert ticket.reload.open?
+  end
+
+  test "agents see internal notes" do
+    get ticket_path(tickets(:invoice))
+    assert_select ".message.internal", 1
   end
 end
