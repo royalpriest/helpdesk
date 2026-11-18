@@ -5,8 +5,10 @@ Rails.application.routes.draw do
   # Agent side
   resources :tickets, only: %i[index show update] do
     resources :messages, only: :create
+    resources :taggings, only: %i[create destroy]
   end
   resources :canned_replies, except: :show
+  resources :saved_views, only: %i[create destroy]
   resources :agents, only: %i[index new create update destroy]
   resources :invitations, only: %i[edit update], param: :token
 

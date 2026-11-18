@@ -2,6 +2,7 @@
 class User < ApplicationRecord
   has_secure_password
   has_many :sessions, dependent: :destroy
+  has_many :saved_views, dependent: :destroy
   has_many :assigned_tickets, class_name: "Ticket", foreign_key: :assignee_id, inverse_of: :assignee, dependent: :nullify
 
   # The link in an invitation email. It stops working once the agent sets a password.
