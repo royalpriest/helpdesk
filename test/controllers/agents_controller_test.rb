@@ -41,7 +41,7 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
   end
 
   test "reactivates an agent" do
-    patch agent_path(users(:former))
+    patch reactivate_agent_path(users(:former))
     assert users(:former).reload.active?
   end
 
@@ -55,5 +55,47 @@ class AgentsControllerTest < ActionDispatch::IntegrationTest
   test "deactivated agents aren't offered as assignees" do
     get ticket_path(tickets(:login))
     assert_select "option", text: "Former Agent", count: 0
+  end
+
+  test "admins can make another agent an admin and take it back" do
+    patch make_admin_agent_path(users(:two))
+    assert users(:two).reload.admin?
+
+    patch remove_admin_agent_path(users(:two))
+    assert_not users(:two).reload.admin?
+  end
+
+  test "the last admin can't remove their own admin rights" do
+    patch remove_admin_agent_path(users(:one))
+    assert users(:one).reload.admin?
+    assert_equal "There has to be at least one admin.", flash[:alert]
+  end
+
+  test "agents who aren't admins can't manage agents" do
+    sign_out
+    sign_in_as users(:two)
+
+    get agents_path
+    assert_redirected_to root_path
+
+    assert_no_difference "User.count" do
+      post agents_path, params: { user: { name: "Sneaky", email_address: "sneaky@example.com" } }
+    end
+
+    delete agent_path(users(:one))
+    assert users(:one).reload.active?
+
+    patch make_admin_agent_path(users(:two))
+    assert_not users(:two).reload.admin?
+  end
+
+  test "the Agents link only shows for admins" do
+    get tickets_path
+    assert_select "nav a", text: "Agents"
+
+    sign_out
+    sign_in_as users(:two)
+    get tickets_path
+    assert_select "nav a", text: "Agents", count: 0
   end
 end
