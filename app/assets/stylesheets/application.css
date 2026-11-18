@@ -31,6 +31,7 @@ input[type=text], input[type=email], input[type=password], textarea, select { wi
 .ticket-controls select { width: auto; }
 
 .filters { display: flex; gap: 1rem; margin-bottom: 1rem; }
+.filters a { text-decoration: none; }
 .filters a.active { font-weight: 700; text-decoration: none; color: var(--ink); }
 
 table.tickets { width: 100%; border-collapse: collapse; background: #fff; border: 1px solid var(--line); }
