@@ -5,6 +5,10 @@ on:
   push:
     branches: [ main ]
 
+# Every job only needs to read the code. Grant extra scopes per job if one ever needs them.
+permissions:
+  contents: read
+
 jobs:
   scan_ruby:
     runs-on: ubuntu-latest
