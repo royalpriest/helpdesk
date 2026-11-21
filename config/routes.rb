@@ -6,6 +6,7 @@ Rails.application.routes.draw do
   resources :tickets, only: %i[index show update] do
     resources :messages, only: :create
     resources :taggings, only: %i[create destroy]
+    resource :portal_link, only: :update
   end
   resources :canned_replies, except: :show
   resources :inboxes, except: :show
