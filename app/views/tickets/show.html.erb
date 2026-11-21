@@ -140,8 +140,12 @@
       </section>
     <% end %>
 
-    <button type="button" class="btn btn-secondary copy-link" data-controller="clipboard" data-clipboard-text-value="<%= portal_ticket_url(@ticket.portal_token) %>" data-action="clipboard#copy">
-      <%= icon :link, size: 15 %> <span data-clipboard-target="label">Copy customer portal link</span>
-    </button>
+    <div class="portal-link">
+      <button type="button" class="btn btn-secondary copy-link" data-controller="clipboard" data-clipboard-text-value="<%= portal_ticket_url(@ticket.portal_token) %>" data-action="clipboard#copy">
+        <%= icon :link, size: 15 %> <span data-clipboard-target="label">Copy customer portal link</span>
+      </button>
+      <%= button_to "Reset customer link", ticket_portal_link_path(@ticket, @list_params), method: :patch, class: "link reset-link",
+            form: { data: { turbo_confirm: "Reset the customer link? The current link stops working, and #{@ticket.customer.display_name} gets the new one with your next reply." } } %>
+    </div>
   </aside>
 </div>

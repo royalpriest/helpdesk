@@ -326,7 +326,12 @@ fieldset { border: 0; padding: 0; margin: 0; }
 .other-tickets ul { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 6px; }
 .other-tickets a { display: flex; justify-content: space-between; align-items: center; gap: 8px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 12px; color: var(--ink); }
 .other-tickets a:hover { background: var(--surface-2); }
-.copy-link { margin-top: auto; width: 100%; }
+.portal-link { margin-top: auto; display: flex; flex-direction: column; align-items: center; gap: 10px; }
+.copy-link { width: 100%; }
+.portal-link form.button_to { display: block; }
+button.reset-link { color: var(--muted); font-size: 13px; padding: 4px 6px; border-radius: 6px; }
+button.reset-link:hover { color: var(--accent-strong); }
+button.reset-link:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 
 /* Plain pages: canned replies, agents, inboxes */
 table.tickets { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius-lg); box-shadow: var(--shadow); overflow: hidden; }
